@@ -1,0 +1,363 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TeamsController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.soccernexusserver.controllers</a>
+</div>
+
+<h1>Coverage Summary for Class: TeamsController (com.example.soccernexusserver.controllers)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TeamsController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (12/15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    67.3%
+  </span>
+  <span class="absValue">
+    (74/110)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.soccernexusserver.controllers;
+&nbsp;
+&nbsp;import com.example.soccernexusserver.entities.Invite;
+&nbsp;import com.example.soccernexusserver.entities.Notification;
+&nbsp;import com.example.soccernexusserver.entities.Player;
+&nbsp;import com.example.soccernexusserver.entities.Team;
+&nbsp;import com.example.soccernexusserver.jparepos.InviteRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.NotificationRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.PlayerRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.TeamRepo;
+&nbsp;import com.example.soccernexusserver.jsonobjs.InvitePlayerJson;
+&nbsp;import com.example.soccernexusserver.jsonobjs.TeamMemberJson;
+&nbsp;import io.swagger.annotations.ApiOperation;
+&nbsp;import io.swagger.annotations.ApiResponse;
+&nbsp;import io.swagger.annotations.ApiResponses;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/teams&quot;)
+&nbsp;public class TeamsController {
+&nbsp;
+&nbsp;    private final TeamRepo _teamRepo;
+&nbsp;    private final PlayerRepo _playerRepo;
+&nbsp;    private final InviteRepo _inviteRepo;
+&nbsp;    private final NotificationRepo _notificationRepo;
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;    public TeamsController(TeamRepo _teamRepo, PlayerRepo _playerRepo, InviteRepo _inviteRepo, NotificationRepo _notificationRepo) {</b>
+<b class="fc">&nbsp;        this._teamRepo = _teamRepo;</b>
+<b class="fc">&nbsp;        this._playerRepo = _playerRepo;</b>
+<b class="fc">&nbsp;        this._inviteRepo = _inviteRepo;</b>
+<b class="fc">&nbsp;        this._notificationRepo = _notificationRepo;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Gets a team by ID&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 404, message = &quot;Team not found&quot;), @ApiResponse(code = 200, message = &quot;Success&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/getTeam/{id}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Team&gt; GetTeam(@PathVariable long id) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; team = _teamRepo.findById(id);</b>
+<b class="fc">&nbsp;        return team.map(value -&gt; new ResponseEntity&lt;&gt;(value, HttpStatus.OK)).orElseGet(() -&gt; new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Creates a new team&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid request body&quot;), @ApiResponse(code = 201, message = &quot;Team created successfully&quot;)})
+&nbsp;    @PostMapping(&quot;/createTeam&quot;)
+&nbsp;    public ResponseEntity&lt;Team&gt; CreateTeam(@RequestBody Team newTeam) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; profile = _playerRepo.findById(newTeam.captain.player_id);</b>
+<b class="fc">&nbsp;        if (profile.isPresent()) {</b>
+<b class="fc">&nbsp;            newTeam.members = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;            newTeam.members.add(profile.get());</b>
+<b class="fc">&nbsp;            Team savedTeam = _teamRepo.save(newTeam);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(savedTeam, HttpStatus.CREATED);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Gets all teams&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 200, message = &quot;Success&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/getAllTeams&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Iterable&lt;Team&gt;&gt; GetTeam() {
+<b class="fc">&nbsp;        return new ResponseEntity&lt;&gt;(_teamRepo.findAll(), HttpStatus.OK);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Updates a team&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid request body&quot;), @ApiResponse(code = 404, message = &quot;Team not found&quot;), @ApiResponse(code = 200, message = &quot;Team updated successfully&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/updateTeam&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Team&gt; UpdateTeam(@RequestBody Team updatedTeam) {
+<b class="nc">&nbsp;        Optional&lt;Team&gt; existingTeam = _teamRepo.findById(updatedTeam.team_id);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (existingTeam.isPresent()) {</b>
+<b class="nc">&nbsp;            existingTeam.get().team_name = updatedTeam.team_name;</b>
+<b class="nc">&nbsp;            existingTeam.get().location = updatedTeam.location;</b>
+<b class="nc">&nbsp;            _teamRepo.save(existingTeam.get());</b>
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(existingTeam.get(), HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Deletes a team&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 404, message = &quot;Team not found&quot;), @ApiResponse(code = 200, message = &quot;Team deleted successfully&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/deleteTeam/{id}&quot;, method = RequestMethod.DELETE)
+&nbsp;    public ResponseEntity&lt;String&gt; DeleteTeam(@PathVariable long id) {
+<b class="nc">&nbsp;        Optional&lt;Team&gt; team = _teamRepo.findById(id);</b>
+<b class="nc">&nbsp;        if (team.isPresent()) {</b>
+<b class="nc">&nbsp;            team.get().members.clear();</b>
+<b class="nc">&nbsp;            _teamRepo.save(team.get());</b>
+<b class="nc">&nbsp;            _teamRepo.deleteById(id);</b>
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(&quot;Team successfully Deleted&quot;, HttpStatus.OK);</b>
+&nbsp;
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Joins a team&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid request body&quot;), @ApiResponse(code = 404, message = &quot;Team or player not found&quot;), @ApiResponse(code = 200, message = &quot;Player joined team successfully&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/joinTeam&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Team&gt; JoinTeam(@RequestBody TeamMemberJson joinedTeam) {
+<b class="nc">&nbsp;        Optional&lt;Team&gt; existingTeam = _teamRepo.findById(joinedTeam.team_id);</b>
+<b class="nc">&nbsp;        Optional&lt;Player&gt; joinedPlayer = _playerRepo.findById(joinedTeam.player_id);</b>
+<b class="nc">&nbsp;        if (existingTeam.isPresent() &amp;&amp; joinedPlayer.isPresent()) {</b>
+<b class="nc">&nbsp;            Team team = existingTeam.get();</b>
+<b class="nc">&nbsp;            team.members.add(joinedPlayer.get());</b>
+<b class="nc">&nbsp;            _teamRepo.save(team);</b>
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(team, HttpStatus.OK);</b>
+&nbsp;
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Leaves a team&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid request body&quot;), @ApiResponse(code = 404, message = &quot;Team or player not found&quot;), @ApiResponse(code = 200, message = &quot;Player left team successfully&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/leaveTeam/{team_id}/{player_id}&quot;, method = RequestMethod.DELETE)
+&nbsp;    public ResponseEntity&lt;String&gt; LeaveTeam(@PathVariable long team_id, @PathVariable long player_id) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; potentialTeam = _teamRepo.findById(team_id);</b>
+<b class="fc">&nbsp;        Optional&lt;Player&gt; potentialPlayer = _playerRepo.findById(player_id);</b>
+<b class="fc">&nbsp;        if (potentialPlayer.isPresent() &amp;&amp; potentialTeam.isPresent()) {</b>
+<b class="fc">&nbsp;            Team actualTeam = potentialTeam.get();</b>
+<b class="fc">&nbsp;            for (Player member : actualTeam.members) {</b>
+<b class="fc">&nbsp;                if (member.player_id == potentialPlayer.get().player_id) {</b>
+<b class="fc">&nbsp;                    actualTeam.members.remove(member);</b>
+<b class="fc">&nbsp;                    _teamRepo.save(actualTeam);</b>
+<b class="fc">&nbsp;                    return new ResponseEntity&lt;&gt;(&quot;Successfully left team.&quot;, HttpStatus.OK);</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Invites a player to a team&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid request body&quot;), @ApiResponse(code = 404, message = &quot;Team or player not found&quot;), @ApiResponse(code = 200, message = &quot;Invitation sent successfully&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/invitePlayer&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Team&gt; invitePlayerToTeam(@RequestBody InvitePlayerJson inviteRequest) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; existingTeam = _teamRepo.findById(inviteRequest.team_id);</b>
+<b class="fc">&nbsp;        Optional&lt;Player&gt; invitedPlayer = _playerRepo.findById(inviteRequest.player_id);</b>
+<b class="fc">&nbsp;        Notification inviteNotif = new Notification();</b>
+<b class="fc">&nbsp;        if (existingTeam.isPresent() &amp;&amp; invitedPlayer.isPresent()) {</b>
+<b class="fc">&nbsp;            Team team = existingTeam.get();</b>
+<b class="fc">&nbsp;            Invite newInvite = new Invite();</b>
+<b class="fc">&nbsp;            newInvite.inviting_team = existingTeam.get();</b>
+<b class="fc">&nbsp;            inviteNotif.notif_sending_team = team;</b>
+<b class="fc">&nbsp;            inviteNotif.notif_receiving_player = invitedPlayer.get();</b>
+<b class="fc">&nbsp;            inviteNotif.is_read = false;</b>
+<b class="fc">&nbsp;            inviteNotif.notification_type = &quot;invite&quot;;</b>
+<b class="fc">&nbsp;            inviteNotif.notification_message = &quot;You&#39;ve been invited to join team &quot; + team.team_name + &quot;!&quot;;</b>
+<b class="fc">&nbsp;            newInvite.invited_player = invitedPlayer.get();</b>
+<b class="fc">&nbsp;            _inviteRepo.save(newInvite);</b>
+<b class="fc">&nbsp;            _notificationRepo.save(inviteNotif);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(team, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Gets a player&#39;s invites&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 404, message = &quot;Player not found&quot;), @ApiResponse(code = 200, message = &quot;Success&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/getPlayerInvites/{player_id}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Iterable&lt;Invite&gt;&gt; GetPlayerInvites(@PathVariable long player_id) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; existingPlayer = _playerRepo.findById(player_id);</b>
+<b class="fc">&nbsp;        if (existingPlayer.isPresent()) {</b>
+<b class="fc">&nbsp;            Iterable&lt;Invite&gt; invites = _inviteRepo.findAllByPlayerId(player_id);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(invites, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/changeTeamName&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Team&gt; ChangeTeamName(@RequestBody Team updatedTeam) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; existingTeam = _teamRepo.findById(updatedTeam.team_id);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (existingTeam.isPresent()) {</b>
+<b class="fc">&nbsp;            existingTeam.get().team_name = updatedTeam.team_name;</b>
+<b class="fc">&nbsp;            _teamRepo.save(existingTeam.get());</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(existingTeam.get(), HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/changeTeamLocation&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Team&gt; ChangeTeamLocation(@RequestBody Team updatedTeam) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; existingTeam = _teamRepo.findById(updatedTeam.team_id);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (existingTeam.isPresent()) {</b>
+<b class="fc">&nbsp;            existingTeam.get().location = updatedTeam.location;</b>
+<b class="fc">&nbsp;            _teamRepo.save(existingTeam.get());</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(existingTeam.get(), HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/removePlayerFromTeam/{team_id}/{player_id}&quot;, method = RequestMethod.DELETE)
+&nbsp;    public ResponseEntity&lt;String&gt; RemovePlayerFromTeam(@PathVariable long team_id, @PathVariable long player_id) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; existingTeam = _teamRepo.findById(team_id);</b>
+<b class="fc">&nbsp;        Optional&lt;Player&gt; removedPlayer = _playerRepo.findById(player_id);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (existingTeam.isPresent() &amp;&amp; removedPlayer.isPresent()) {</b>
+<b class="fc">&nbsp;            Team team = existingTeam.get();</b>
+<b class="fc">&nbsp;            for (Player member : team.members) {</b>
+<b class="fc">&nbsp;                if (member.player_id == removedPlayer.get().player_id) {</b>
+<b class="fc">&nbsp;                    team.members.remove(member);</b>
+<b class="fc">&nbsp;                    _teamRepo.save(team);</b>
+<b class="fc">&nbsp;                    return new ResponseEntity&lt;&gt;(&quot;Player successfully removed from team.&quot;, HttpStatus.OK);</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/acceptInvite&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Team&gt; acceptInvite(@RequestBody InvitePlayerJson invite) {
+<b class="fc">&nbsp;        Optional&lt;Invite&gt; existingInvite = _inviteRepo.findById(invite.invite_id);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (existingInvite.isPresent()) {</b>
+<b class="fc">&nbsp;            Optional&lt;Team&gt; team = _teamRepo.findById(existingInvite.get().inviting_team.team_id);</b>
+<b class="fc">&nbsp;            Optional&lt;Player&gt; player = _playerRepo.findById(invite.player_id);</b>
+&nbsp;
+<b class="fc">&nbsp;            if (team.isPresent() &amp;&amp; player.isPresent()) {</b>
+<b class="nc">&nbsp;                Team joinedTeam = team.get();</b>
+<b class="nc">&nbsp;                joinedTeam.members.add(player.get());</b>
+<b class="nc">&nbsp;                _teamRepo.save(joinedTeam);</b>
+<b class="nc">&nbsp;                _inviteRepo.deleteById(invite.invite_id);</b>
+&nbsp;
+<b class="nc">&nbsp;                return new ResponseEntity&lt;&gt;(joinedTeam, HttpStatus.OK);</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;            }
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/declineInvite/{invite_id}&quot;, method = RequestMethod.DELETE)
+&nbsp;    public ResponseEntity&lt;Invite&gt; declineInvite(@PathVariable long invite_id) {
+<b class="fc">&nbsp;        Optional&lt;Invite&gt; existingInvite = _inviteRepo.findById(invite_id);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (existingInvite.isPresent()) {</b>
+<b class="fc">&nbsp;            _inviteRepo.deleteById(invite_id);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(existingInvite.get(), HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-06 02:12</div>
+</div>
+</body>
+</html>

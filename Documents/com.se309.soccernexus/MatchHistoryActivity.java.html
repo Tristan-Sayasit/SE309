@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MatchHistoryActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">MatchHistoryActivity.java</span></div><h1>MatchHistoryActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+
+import android.app.DownloadManager;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.se309.soccernexus.util.recyclerviews.Match;
+import com.se309.soccernexus.util.recyclerviews.MatchAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.ArrayList;
+
+<span class="fc" id="L33">public class MatchHistoryActivity extends AppCompatActivity {</span>
+
+    ImageButton backButton;
+    RecyclerView pastMatches;
+    private ArrayList&lt;Match&gt; matchList;
+
+    long teamID;
+
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L42">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L43">        setContentView(R.layout.match_history_activity);</span>
+
+<span class="fc" id="L45">        Bundle extras = getIntent().getExtras();</span>
+<span class="fc" id="L46">        teamID = extras.getLong(&quot;teamid&quot;);</span>
+
+<span class="fc" id="L48">        backButton = findViewById(R.id.match_history_backBtn);</span>
+<span class="fc" id="L49">        pastMatches = findViewById(R.id.matchHistoryRecyclerView);</span>
+
+<span class="fc" id="L51">        matchList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L53">        getMatchHistory();</span>
+
+<span class="fc" id="L55">        backButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L58">                Intent intent = new Intent(MatchHistoryActivity.this, ViewTeamActivity.class);</span>
+<span class="nc" id="L59">                intent.putExtra(&quot;teamid&quot;, teamID);</span>
+<span class="nc" id="L60">                startActivity(intent);</span>
+<span class="nc" id="L61">            }</span>
+
+        });
+
+//        LocalDateTime date1 = LocalDateTime.now();
+//
+//        date1 = LocalDateTime.of(2023, Month.NOVEMBER, 28, 21, 0);
+//        matchList.add(new Match(&quot;Vikings&quot;, &quot;Minnesota&quot;, date1, 0));
+//        matchList.add(new Match(&quot;Packers&quot;, &quot;Wisconsin&quot;, date1, 0));
+//        matchList.add(new Match(&quot;Lions&quot;, &quot;Michigan&quot;, date1, 0));
+<span class="fc" id="L71">    }</span>
+
+    private void getMatchHistory() {
+<span class="fc" id="L74">        RequestQueue queue = Volley.newRequestQueue(MatchHistoryActivity.this);</span>
+<span class="fc" id="L75">        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/matches/getMatchHistory/&quot; + teamID, null,</span>
+
+<span class="fc" id="L77">                new Response.Listener&lt;JSONArray&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONArray response) {
+<span class="fc" id="L80">                        Log.i(&quot;Match History request&quot;, response.toString());</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                        for(int i = 0; i &lt; response.length(); i++) {</span>
+                            try {
+<span class="fc" id="L83">                                long matchID = response.getJSONObject(i).getLong(&quot;pickup_match_id&quot;);</span>
+<span class="fc" id="L84">                                String teamName = response.getJSONObject(i).getJSONObject(&quot;challenging_team&quot;).getString(&quot;team_name&quot;);</span>
+<span class="fc" id="L85">                                String location = response.getJSONObject(i).getString(&quot;location&quot;);</span>
+<span class="fc" id="L86">                                LocalDateTime date = LocalDateTime.parse(response.getJSONObject(i).getString(&quot;time_of_match&quot;));</span>
+<span class="fc" id="L87">                                matchList.add(new Match(teamName, location, date, matchID));</span>
+<span class="nc" id="L88">                            } catch (JSONException e) {</span>
+<span class="nc" id="L89">                                throw new RuntimeException(e);</span>
+<span class="fc" id="L90">                            }</span>
+                        }
+<span class="fc" id="L92">                        updateMatchesRecyclerView();</span>
+<span class="fc" id="L93">                    }</span>
+                },
+
+<span class="fc" id="L96">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L100">                    }</span>
+                }
+
+        );
+<span class="fc" id="L104">        queue.add(request);</span>
+<span class="fc" id="L105">    }</span>
+
+    public void updateMatchesRecyclerView() {
+<span class="fc" id="L108">        MatchAdapter adapter = new MatchAdapter(matchList);</span>
+<span class="fc" id="L109">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L110">        pastMatches.setNestedScrollingEnabled(false);</span>
+<span class="fc" id="L111">        pastMatches.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L112">        pastMatches.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L113">        pastMatches.setAdapter(adapter);</span>
+<span class="fc" id="L114">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

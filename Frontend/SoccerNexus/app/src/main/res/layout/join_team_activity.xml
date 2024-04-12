@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/join_team_backBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="14dp"
+        android:background="#00FFFFFF"
+        android:contentDescription="Back Button"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/chevron_left" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/join_team_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toTopOf="@+id/navbarDivider4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title2" />
+
+    <View
+        android:id="@+id/navbarBg4"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/navbarDivider4"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_marginBottom="22dp"
+        android:background="#4D4E4E"
+        app:layout_constraintBottom_toTopOf="@id/join_team_homePageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/homePgIconSelector4"
+        android:layout_width="45dp"
+        android:layout_height="2dp"
+        android:layout_marginStart="133dp"
+        android:layout_marginBottom="18dp"
+        android:background="#6558F5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/join_team_homePageButton"
+        android:layout_width="69dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="22dp"
+        android:background="#00FFFFFF"
+        android:backgroundTint="#00FFFFFF"
+        android:contentDescription="Home Button"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_home" />
+
+    <ImageButton
+        android:id="@+id/join_team_teamPageButton"
+        android:layout_width="69dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginBottom="22dp"
+        android:background="#00FFFFFF"
+        android:contentDescription="Team Page Button"
+        android:scaleType="fitCenter"
+        app:tint="#6558F5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/join_team_homePageButton"
+        app:srcCompat="@drawable/ic_teams" />
+
+    <ImageButton
+        android:id="@+id/join_team_profilePageButton"
+        android:layout_width="69dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginBottom="22dp"
+        android:background="#00FFFFFF"
+        android:contentDescription="Profile Page Button"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/join_team_teamPageButton"
+        app:srcCompat="@drawable/ic_profile" />
+
+    <ImageButton
+        android:id="@+id/join_team_settingsPageButton"
+        android:layout_width="69dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="22dp"
+        android:backgroundTint="#00FFFFFF"
+        android:contentDescription="Settings Page Button"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/settings"
+        app:tint="#4D4E4E" />
+
+    <TextView
+        android:id="@+id/title2"
+        android:layout_width="201dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="10dp"
+        android:text="Join Team"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

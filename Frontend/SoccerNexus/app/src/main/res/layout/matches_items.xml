@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <View
+        android:id="@+id/matches_bg"
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/rounded_gray_bg"
+        android:backgroundTint="#C6C6C6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/matches_enter"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/chevron_right_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/matches_bg"
+        app:layout_constraintTop_toTopOf="@+id/matches_bg" />
+
+    <TextView
+        android:id="@+id/matches_teamName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:text="A really long team"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/matches_bg"
+        app:layout_constraintTop_toTopOf="@+id/matches_bg" />
+
+    <TextView
+        android:id="@+id/matches_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:text="Ames, Iowa"
+        android:textColor="#202020"
+        app:layout_constraintStart_toEndOf="@+id/matches_locationIcon"
+        app:layout_constraintTop_toBottomOf="@+id/matches_teamName" />
+
+    <View
+        android:id="@+id/matches_locationIcon"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="1dp"
+        android:background="@drawable/location_icon"
+        android:backgroundTint="#202020"
+        app:layout_constraintStart_toStartOf="@+id/matches_teamName"
+        app:layout_constraintTop_toBottomOf="@+id/matches_teamName" />
+
+    <TextView
+        android:id="@+id/matches_dateText"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:text="Sun, 12/3 7:00 PM"
+        android:textColor="#202020"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/matches_bg"
+        app:layout_constraintEnd_toStartOf="@+id/matches_enter"
+        app:layout_constraintTop_toTopOf="@+id/matches_bg" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

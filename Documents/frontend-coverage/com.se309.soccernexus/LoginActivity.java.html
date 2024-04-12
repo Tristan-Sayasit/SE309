@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">LoginActivity.java</span></div><h1>LoginActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.hasProfile;
+import static com.se309.soccernexus.util.Const.numTeams;
+import static com.se309.soccernexus.util.Const.playerID;
+import static com.se309.soccernexus.util.Const.username;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * @author Nathan Turnis
+ * Class for displaying and handling logic in the Logic page
+ */
+<span class="fc" id="L35">public class LoginActivity  extends AppCompatActivity {</span>
+
+    TextInputLayout usernameInput;
+    TextInputLayout passwordInput;
+    Button signUpButton;
+    Button loginButton;
+    TextView warningTextView;
+
+    View progressBg;
+    ProgressBar progressBar;
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Performs form validation on the buttons. When the user clicks login, the method makes
+     * a request asking to login. Upon a successful response, the user is taken to the HomeActivity.
+     * If the server is down or the request fails, the user is notified.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L58">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L59">        setContentView(R.layout.login_activity);</span>
+
+<span class="fc" id="L61">        signUpButton = findViewById(R.id.signupButton);</span>
+<span class="fc" id="L62">        usernameInput = findViewById(R.id.login_usernameInput);</span>
+<span class="fc" id="L63">        passwordInput = findViewById(R.id.login_passwordInput);</span>
+<span class="fc" id="L64">        loginButton = findViewById(R.id.loginButton);</span>
+<span class="fc" id="L65">        warningTextView = findViewById(R.id.warningTextLogin);</span>
+<span class="fc" id="L66">        progressBg = findViewById(R.id.login_progressBg);</span>
+<span class="fc" id="L67">        progressBar = findViewById(R.id.login_progressCircle);</span>
+
+<span class="fc" id="L69">        loginButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+
+                //if inputs are blank, return
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">                if(usernameInput.getEditText().getText().toString().isEmpty()</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">                        || passwordInput.getEditText().getText().toString().isEmpty()) {</span>
+<span class="nc" id="L76">                    warningTextView.setText(&quot;Some fields are blank!&quot;);</span>
+<span class="nc" id="L77">                    warningTextView.setAlpha(1);</span>
+<span class="nc" id="L78">                    return;</span>
+                }
+
+                //closes keyboard when login button is pressed
+                try {
+<span class="fc" id="L83">                    InputMethodManager imm = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);</span>
+<span class="fc" id="L84">                    imm.hideSoftInputFromWindow(findViewById(R.id.login_constraintLayout).getWindowToken(), 0);</span>
+<span class="nc" id="L85">                } catch (Exception e) {</span>
+<span class="nc" id="L86">                    e.printStackTrace();</span>
+<span class="fc" id="L87">                }</span>
+
+<span class="fc" id="L89">                RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);</span>
+
+<span class="fc" id="L91">                JSONObject body = new JSONObject();</span>
+                try {
+<span class="fc" id="L93">                    body.put(&quot;username&quot;, usernameInput.getEditText().getText().toString());</span>
+<span class="fc" id="L94">                    body.put(&quot;password&quot;, passwordInput.getEditText().getText().toString());</span>
+<span class="nc" id="L95">                } catch (Exception e) {</span>
+<span class="nc" id="L96">                    e.printStackTrace();</span>
+<span class="fc" id="L97">                }</span>
+
+<span class="fc" id="L99">                progressBar.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L100">                progressBg.setVisibility(View.VISIBLE);</span>
+
+<span class="fc" id="L102">                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,  BASE_SERVER_URL + &quot;/players/login&quot;, body,</span>
+
+<span class="fc" id="L104">                        new Response.Listener&lt;JSONObject&gt;() {</span>
+                            public void onResponse(JSONObject response) {
+<span class="fc" id="L106">                                Log.i(&quot;JSON Response&quot;, response.toString());</span>
+                                try {
+<span class="fc" id="L108">                                    playerID = response.getLong(&quot;player_id&quot;);</span>
+<span class="fc" id="L109">                                    Log.i(&quot;user id&quot;, String.valueOf(playerID));</span>
+<span class="fc" id="L110">                                    username = response.getString(&quot;username&quot;);</span>
+<span class="fc" id="L111">                                    numTeams = response.getJSONArray(&quot;teams&quot;).length();</span>
+<span class="fc" id="L112">                                    hasProfile = response.getBoolean(&quot;has_profile&quot;);</span>
+<span class="nc" id="L113">                                } catch (JSONException e) {</span>
+<span class="nc" id="L114">                                    throw new RuntimeException(e);</span>
+<span class="fc" id="L115">                                }</span>
+<span class="fc" id="L116">                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);</span>
+<span class="fc" id="L117">                                startActivity(intent);</span>
+<span class="fc" id="L118">                            }</span>
+                        },
+
+<span class="fc" id="L121">                        new Response.ErrorListener() {</span>
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L124">                                Log.i(&quot;JSON Error&quot;, error.toString());</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                                if(error.toString().equals(&quot;com.android.volley.TimeoutError&quot;)) {</span>
+<span class="nc" id="L127">                                    warningTextView.setText(&quot;Could not establish connection!&quot;);</span>
+<span class="nc" id="L128">                                    warningTextView.setAlpha(1);</span>
+<span class="nc" id="L129">                                    progressBar.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L130">                                    progressBg.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L131">                                    return;</span>
+                                }
+
+<span class="nc" id="L134">                                Log.i(&quot;JSON Error Code&quot;, String.valueOf(error.networkResponse.statusCode));</span>
+
+<span class="nc bnc" id="L136" title="All 4 branches missed.">                                if(error.networkResponse.statusCode == 400 || error.networkResponse.statusCode == 401) {</span>
+<span class="nc" id="L137">                                    warningTextView.setText(&quot;Incorrect username or password&quot;);</span>
+<span class="nc" id="L138">                                    warningTextView.setAlpha(1);</span>
+                                }
+<span class="nc" id="L140">                                progressBar.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L141">                                progressBg.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L142">                            }</span>
+                        }
+                );
+<span class="fc" id="L145">                queue.add(request);</span>
+<span class="fc" id="L146">            }</span>
+
+        });
+
+<span class="fc" id="L150">        signUpButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L153">                Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);</span>
+<span class="nc" id="L154">                startActivity(intent);</span>
+<span class="nc" id="L155">            }</span>
+        });
+<span class="fc" id="L157">    }</span>
+
+    /**
+     * Called when the activity resumes. Sets the progress, background, and warning text to
+     * invisible. Clears the inputs.
+     */
+    @Override
+    protected void onResume() {
+<span class="fc" id="L165">        super.onResume();</span>
+<span class="fc" id="L166">        progressBg.setVisibility(View.INVISIBLE);</span>
+<span class="fc" id="L167">        progressBar.setVisibility(View.INVISIBLE);</span>
+<span class="fc" id="L168">        warningTextView.setAlpha(0);</span>
+<span class="fc" id="L169">        usernameInput.getEditText().getText().clear();</span>
+<span class="fc" id="L170">        passwordInput.getEditText().getText().clear();</span>
+<span class="fc" id="L171">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

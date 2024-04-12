@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NotificationsAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus.util.recyclerviews</a> &gt; <span class="el_source">NotificationsAdapter.java</span></div><h1>NotificationsAdapter.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus.util.recyclerviews;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.se309.soccernexus.FriendRequestsActivity;
+import com.se309.soccernexus.HomeActivity;
+import com.se309.soccernexus.JoinTeamActivity;
+import com.se309.soccernexus.PickupMatchRequestsActivity;
+import com.se309.soccernexus.PrivateMessageLobbyActivity;
+import com.se309.soccernexus.R;
+import com.se309.soccernexus.util.NotificationType;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+/**
+ * @author Nathan Turnis
+ * Class for handling the recycler view for the Notifications
+ */
+public class NotificationsAdapter extends RecyclerView.Adapter&lt;NotificationsAdapter.ViewHolder&gt; {
+
+    private ArrayList&lt;Notification&gt; notificationsList;
+    Context context;
+
+    /**
+     * Creates a new notifications adapter.
+     * @param notificationsList
+     * @param context The context of where the notification lives
+     */
+<span class="fc" id="L49">    public NotificationsAdapter(ArrayList&lt;Notification&gt; notificationsList, Context context) {</span>
+<span class="fc" id="L50">        this.notificationsList = notificationsList;</span>
+<span class="fc" id="L51">        this.context = context;</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * Class for handling each recycler view item
+     */
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView nameText, descriptionText;
+        private ImageButton clearBtn, enterBtn;
+        private long id, specialID;
+        private View bg;
+        private NotificationType notificationType;
+
+        /**
+         * Creates a new ViewHolder. If the user clicks the clear button, a request is made
+         * to delete the notification from the user's notification list.
+         * @param view
+         */
+<span class="fc" id="L69">        public ViewHolder(final View view) {</span>
+<span class="fc" id="L70">            super(view);</span>
+<span class="fc" id="L71">            nameText = view.findViewById(R.id.notification_title);</span>
+<span class="fc" id="L72">            descriptionText = view.findViewById(R.id.notification_description);</span>
+<span class="fc" id="L73">            clearBtn = view.findViewById(R.id.notificationClearBtn);</span>
+<span class="fc" id="L74">            enterBtn = view.findViewById(R.id.notificationChevron);</span>
+<span class="fc" id="L75">            bg = view.findViewById(R.id.notification_bg);</span>
+
+<span class="fc" id="L77">            clearBtn.setOnClickListener(new View.OnClickListener() {</span>
+                @Override
+                public void onClick(View v) {
+<span class="nc" id="L80">                    Log.i(&quot;button clicked&quot;, nameText.getText().toString());</span>
+
+<span class="nc" id="L82">                    RequestQueue queue = Volley.newRequestQueue(context);</span>
+<span class="nc" id="L83">                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.DELETE, BASE_SERVER_URL + &quot;/notifications/readNotification/&quot; + id, null,</span>
+
+<span class="nc" id="L85">                            new Response.Listener&lt;JSONObject&gt;() {</span>
+                                @Override
+                                public void onResponse(JSONObject response) {
+<span class="nc" id="L88">                                    notificationsList.remove(getAdapterPosition());</span>
+<span class="nc" id="L89">                                    notifyDataSetChanged();</span>
+<span class="nc" id="L90">                                }</span>
+                            },
+
+<span class="nc" id="L93">                            new Response.ErrorListener() {</span>
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L97">                                }</span>
+                            }
+
+                    );
+<span class="nc" id="L101">                    queue.add(request);</span>
+
+<span class="nc" id="L103">                }</span>
+            });
+
+<span class="fc" id="L106">            bg.setOnClickListener(new View.OnClickListener() {</span>
+                @Override
+                public void onClick(View v) {
+
+<span class="fc" id="L110">                    RequestQueue queue = Volley.newRequestQueue(context);</span>
+<span class="fc" id="L111">                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.DELETE, BASE_SERVER_URL + &quot;/notifications/readNotification/&quot; + id, null,</span>
+
+<span class="fc" id="L113">                            new Response.Listener&lt;JSONObject&gt;() {</span>
+                                @Override
+                                public void onResponse(JSONObject response) {
+<span class="fc" id="L116">                                    notificationsList.remove(getAdapterPosition());</span>
+<span class="fc" id="L117">                                    notifyDataSetChanged();</span>
+<span class="fc" id="L118">                                }</span>
+                            },
+
+<span class="fc" id="L121">                            new Response.ErrorListener() {</span>
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L125">                                }</span>
+                            }
+
+                    );
+<span class="fc" id="L129">                    queue.add(request);</span>
+
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                    if(notificationType == NotificationType.FRIEND_REQUEST) {</span>
+<span class="fc" id="L132">                        Intent intent = new Intent(context, FriendRequestsActivity.class);</span>
+<span class="fc" id="L133">                        view.getContext().startActivity(intent);</span>
+<span class="pc bnc" id="L134" title="All 2 branches missed.">                    } else if(notificationType == NotificationType.MESSAGE) {</span>
+<span class="nc" id="L135">                        Intent intent = new Intent(context, PrivateMessageLobbyActivity.class);</span>
+<span class="nc" id="L136">                        view.getContext().startActivity(intent);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                    } else if(notificationType == NotificationType.INVITE) {</span>
+                        //WILL NEED TO CHANGE ONCE A PROPER ACCEPT INVITE PAGE IS CREATED
+<span class="nc" id="L139">                        Intent intent = new Intent(context, JoinTeamActivity.class);</span>
+<span class="nc" id="L140">                        view.getContext().startActivity(intent);</span>
+                    }
+
+
+<span class="fc" id="L144">                }</span>
+            });
+
+<span class="fc" id="L147">            enterBtn.setOnClickListener(new View.OnClickListener() {</span>
+                @Override
+                public void onClick(View v) {
+
+<span class="nc" id="L151">                    RequestQueue queue = Volley.newRequestQueue(context);</span>
+<span class="nc" id="L152">                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.DELETE, BASE_SERVER_URL + &quot;/notifications/readNotification/&quot; + id, null,</span>
+
+<span class="nc" id="L154">                            new Response.Listener&lt;JSONObject&gt;() {</span>
+                                @Override
+                                public void onResponse(JSONObject response) {
+<span class="nc" id="L157">                                    notificationsList.remove(getAdapterPosition());</span>
+<span class="nc" id="L158">                                    notifyDataSetChanged();</span>
+<span class="nc" id="L159">                                }</span>
+                            },
+
+<span class="nc" id="L162">                            new Response.ErrorListener() {</span>
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L166">                                }</span>
+                            }
+
+                    );
+<span class="nc" id="L170">                    queue.add(request);</span>
+
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                    if(notificationType == NotificationType.FRIEND_REQUEST) {</span>
+<span class="nc" id="L173">                        Intent intent = new Intent(context, FriendRequestsActivity.class);</span>
+<span class="nc" id="L174">                        view.getContext().startActivity(intent);</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                    } else if(notificationType == NotificationType.MESSAGE) {</span>
+<span class="nc" id="L176">                        Intent intent = new Intent(context, PrivateMessageLobbyActivity.class);</span>
+<span class="nc" id="L177">                        view.getContext().startActivity(intent);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">                    } else if(notificationType == NotificationType.INVITE) {</span>
+                        //WILL NEED TO CHANGE ONCE A PROPER ACCEPT INVITE PAGE IS CREATED
+<span class="nc" id="L180">                        Intent intent = new Intent(context, JoinTeamActivity.class);</span>
+<span class="nc" id="L181">                        view.getContext().startActivity(intent);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                    } else if(notificationType == NotificationType.CHALLENGE) {</span>
+<span class="nc" id="L183">                        Intent intent = new Intent(context, PickupMatchRequestsActivity.class);</span>
+
+                    }
+<span class="nc" id="L186">                }</span>
+            });
+<span class="fc" id="L188">        }</span>
+
+    }
+
+
+    /**
+     * When the ViewHolder is created.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to
+     *               an adapter position.
+     * @param viewType The view type of the new View.
+     *
+     * @return new ViewHolder
+     */
+    @NonNull
+    @Override
+    public NotificationsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+<span class="fc" id="L204">        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_items, parent, false);</span>
+<span class="fc" id="L205">        return new ViewHolder(itemView);</span>
+    }
+
+    /**
+     * Binds each item to the ViewHolder.
+     * @param holder The ViewHolder which should be updated to represent the contents of the
+     *        item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
+    @Override
+    public void onBindViewHolder(@NonNull NotificationsAdapter.ViewHolder holder, int position) {
+<span class="fc" id="L216">        String name = notificationsList.get(position).getName();</span>
+<span class="fc" id="L217">        String description = notificationsList.get(position).getDescription();</span>
+<span class="fc" id="L218">        holder.nameText.setText(name);</span>
+<span class="fc" id="L219">        holder.descriptionText.setText(description);</span>
+<span class="fc" id="L220">        holder.id = notificationsList.get(position).id;</span>
+<span class="fc" id="L221">        NotificationType notificationType = notificationsList.get(position).notificationType;</span>
+<span class="fc" id="L222">        holder.notificationType = notificationType;</span>
+<span class="fc" id="L223">        holder.specialID = notificationsList.get(position).specialID;</span>
+
+<span class="pc bpc" id="L225" title="1 of 4 branches missed.">        if(notificationType == NotificationType.FRIEND_REQUEST || notificationType == NotificationType.INVITE) {</span>
+<span class="fc" id="L226">            holder.clearBtn.setVisibility(View.GONE);</span>
+<span class="fc" id="L227">            holder.enterBtn.setVisibility(View.VISIBLE);</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        } else if(notificationType == NotificationType.MESSAGE ) {</span>
+<span class="nc" id="L229">            holder.clearBtn.setVisibility(View.VISIBLE);</span>
+<span class="nc" id="L230">            holder.enterBtn.setVisibility(View.GONE);</span>
+        }
+
+<span class="fc" id="L233">    }</span>
+
+    /**
+     * Gets the size of the notifications list.
+     * @return notifications list size
+     */
+    @Override
+    public int getItemCount() {
+<span class="fc" id="L241">        return notificationsList.size();</span>
+    }
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

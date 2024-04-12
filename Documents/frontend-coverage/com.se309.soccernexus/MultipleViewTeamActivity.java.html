@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MultipleViewTeamActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">MultipleViewTeamActivity.java</span></div><h1>MultipleViewTeamActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.numTeams;
+import static com.se309.soccernexus.util.Const.playerID;
+import static com.se309.soccernexus.util.Const.teamsPlayerIsOn;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.se309.soccernexus.util.recyclerviews.Team;
+import com.se309.soccernexus.util.recyclerviews.TeamAdapter;
+import com.se309.soccernexus.util.recyclerviews.UserChatLobbyAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
+/**
+ * @author Tristan Sayasit
+ * Class for displaying and handling the logic in the Multiple View Team Page
+ */
+<span class="fc" id="L44">public class MultipleViewTeamActivity extends AppCompatActivity {</span>
+
+    ImageButton homePageButton;
+    ImageButton profilePageButton;
+    ImageButton settingsPageButtons;
+    RecyclerView recyclerView;
+    Button joinTeamPageButton;
+    Button createTeamPageButton;
+<span class="fc" id="L52">    ArrayList&lt;Team&gt; teamList = new ArrayList&lt;&gt;();</span>
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Makes a request to get all of the teams the logged-in user is on. For each team, the
+     * recycler view is updated.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+<span class="fc" id="L65">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L66">        setContentView(R.layout.multiple_view_team_activity);</span>
+<span class="fc" id="L67">        homePageButton = findViewById(R.id.multiple_view_team_homePageButton2);</span>
+<span class="fc" id="L68">        profilePageButton = findViewById(R.id.multiple_view_team_profilePageButton2);</span>
+<span class="fc" id="L69">        settingsPageButtons = findViewById(R.id.multiple_view_team_settingsPageButton2);</span>
+<span class="fc" id="L70">        createTeamPageButton = findViewById(R.id.multiple_view_team_createTeamBtn);</span>
+<span class="fc" id="L71">        joinTeamPageButton = findViewById(R.id.multiple_view_team_joinTeamBtn);</span>
+<span class="fc" id="L72">        recyclerView = findViewById(R.id.multipleTeamRecyclerView);</span>
+
+<span class="fc" id="L74">        RequestQueue queue = Volley.newRequestQueue(MultipleViewTeamActivity.this);</span>
+<span class="fc" id="L75">        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/getCurrentPlayersTeams/&quot; + playerID, null,</span>
+
+<span class="fc" id="L77">                new Response.Listener&lt;JSONArray&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONArray response) {
+<span class="fc" id="L80">                        Log.i(&quot;team&quot;, response.toString());</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                        for(int i = 0; i &lt; response.length(); i++) {</span>
+                            try {
+<span class="fc" id="L83">                                long captainID = response.getJSONObject(i).getJSONObject(&quot;captain&quot;).getLong(&quot;player_id&quot;);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">                                if(captainID == playerID) {</span>
+<span class="fc" id="L85">                                    createTeamPageButton.setEnabled(false);</span>
+                                }
+<span class="fc" id="L87">                                String name = response.getJSONObject(i).getString(&quot;team_name&quot;);</span>
+<span class="fc" id="L88">                                long id = response.getJSONObject(i).getLong(&quot;team_id&quot;);</span>
+<span class="fc" id="L89">                                String location = response.getJSONObject(i).getString(&quot;location&quot;);</span>
+<span class="fc" id="L90">                                int playerCount = response.getJSONObject(i).getJSONArray(&quot;members&quot;).length();</span>
+<span class="fc" id="L91">                                teamList.add(new Team(name, id, location, playerCount, 0));</span>
+<span class="fc" id="L92">                                teamsPlayerIsOn.add(id);</span>
+<span class="nc" id="L93">                            } catch (JSONException e) {</span>
+<span class="nc" id="L94">                                e.printStackTrace();</span>
+<span class="fc" id="L95">                            }</span>
+                        }
+<span class="fc" id="L97">                        updateRecyclerView();</span>
+<span class="fc" id="L98">                    }</span>
+                },
+<span class="fc" id="L100">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L103">                        Log.i(&quot;Team list error&quot;, error.toString());</span>
+<span class="nc" id="L104">                    }</span>
+                }
+
+        );
+
+<span class="fc" id="L109">        queue.add(request);</span>
+
+
+<span class="fc" id="L112">        homePageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L115">                Intent intent = new Intent(MultipleViewTeamActivity.this, HomeActivity.class);</span>
+<span class="nc" id="L116">                startActivity(intent);</span>
+<span class="nc" id="L117">            }</span>
+        });
+
+<span class="fc" id="L120">        profilePageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L123">                Intent intent = new Intent(MultipleViewTeamActivity.this, ProfileViewActivity.class);</span>
+<span class="nc" id="L124">                startActivity(intent);</span>
+<span class="nc" id="L125">            }</span>
+        });
+
+<span class="fc" id="L128">        settingsPageButtons.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L131">                Intent intent = new Intent(MultipleViewTeamActivity.this, SettingsActivity.class);</span>
+<span class="nc" id="L132">                startActivity(intent);</span>
+<span class="nc" id="L133">            }</span>
+        });
+
+<span class="fc" id="L136">        joinTeamPageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="fc" id="L139">                Intent intent = new Intent(MultipleViewTeamActivity.this, JoinTeamActivity.class);</span>
+<span class="fc" id="L140">                startActivity(intent);</span>
+<span class="fc" id="L141">            }</span>
+        });
+
+<span class="fc" id="L144">        createTeamPageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L147">                Intent intent = new Intent(MultipleViewTeamActivity.this, CreateTeamActivity.class);</span>
+<span class="nc" id="L148">                startActivity(intent);</span>
+<span class="nc" id="L149">            }</span>
+        });
+<span class="fc" id="L151">    }</span>
+
+    /**
+     * Updates the recycler view.
+     */
+    public void updateRecyclerView() {
+<span class="fc" id="L157">        TeamAdapter adapter = new TeamAdapter(teamList, MultipleViewTeamActivity.this);</span>
+<span class="fc" id="L158">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L159">        recyclerView.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L160">        recyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L161">        recyclerView.setAdapter(adapter);</span>
+<span class="fc" id="L162">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

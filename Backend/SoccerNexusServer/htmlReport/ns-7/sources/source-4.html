@@ -1,0 +1,91 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > FriendRepo</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.soccernexusserver.jparepos</a>
+</div>
+
+<h1>Coverage Summary for Class: FriendRepo (com.example.soccernexusserver.jparepos)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">FriendRepo</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.soccernexusserver.jparepos;
+&nbsp;
+&nbsp;import com.example.soccernexusserver.entities.Friend;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.data.repository.CrudRepository;
+&nbsp;import org.springframework.stereotype.Repository;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@Repository
+&nbsp;public interface FriendRepo extends CrudRepository&lt;Friend, Long&gt; {
+&nbsp;    @Query(&quot;select f from Friend f where (f.player_id_1 = ?1 or f.player_id_2 = ?1) and f.accepted = true&quot;)
+&nbsp;    List&lt;Friend&gt; getFriendsList(long player_id);
+&nbsp;    @Query(&quot;select f from Friend f where (f.player_id_1 = ?1 and f.player_id_2 = ?2) or (f.player_id_1 = ?2 and f.player_id_2 = ?1)&quot;)
+&nbsp;    Optional&lt;Friend&gt; findSpecificFriend(long id1, long id2);
+&nbsp;    @Query(&quot;select f from Friend f where f.player_id_2 = ?1 and f.accepted = false&quot;)
+&nbsp;    List&lt;Friend&gt; getReceivedFriendRequests(long player_id);
+&nbsp;
+&nbsp;    @Query(&quot;select f from Friend f where f.player_id_1 = ?1 and f.accepted = false&quot;)
+&nbsp;    List&lt;Friend&gt; getSentFriendRequests(long player_id);
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-06 02:12</div>
+</div>
+</body>
+</html>

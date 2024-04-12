@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SettingsActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">SettingsActivity.java</span></div><h1>SettingsActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.hasProfile;
+import static com.se309.soccernexus.util.Const.numTeams;
+import static com.se309.soccernexus.util.Const.playerID;
+import static com.se309.soccernexus.util.Const.teamsPlayerIsOn;
+import static com.se309.soccernexus.util.Const.username;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.time.LocalDate;
+import java.util.Calendar;
+
+/**
+ * @author Tristan Sayasit
+ * Class for displaying and handling logic in the Settings Page
+ */
+<span class="fc" id="L39">public class SettingsActivity extends AppCompatActivity {</span>
+
+    ImageButton settings_homePageButton;
+    ImageButton settings_teamPageButton;
+    ImageButton settings_profilePageButton;
+    ImageButton settings_settingsPageButton;
+    Button settings_logOutBtn;
+    Button saveEmail;
+    Button savePassword;
+    TextInputLayout emailInput, passwordInput;
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * When the user clicks logout, it sends them back to the LoginActivity and clears all the
+     * global variables in Const
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L60">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L61">        setContentView(R.layout.settings_activity);</span>
+
+<span class="fc" id="L63">        settings_homePageButton = findViewById(R.id.settings_homePageButton);</span>
+<span class="fc" id="L64">        settings_teamPageButton = findViewById(R.id.settings_teamPageButton);</span>
+<span class="fc" id="L65">        settings_profilePageButton = findViewById(R.id.settings_profilePageButton);</span>
+<span class="fc" id="L66">        settings_settingsPageButton = findViewById(R.id.settings_settingsPageButton);</span>
+<span class="fc" id="L67">        settings_logOutBtn = findViewById(R.id.settings_logOutBtn);</span>
+<span class="fc" id="L68">        emailInput = findViewById(R.id.settings_emailInput);</span>
+<span class="fc" id="L69">        passwordInput = findViewById(R.id.settings_passwordInput);</span>
+<span class="fc" id="L70">        saveEmail = findViewById(R.id.settings_saveEmailBtn);</span>
+<span class="fc" id="L71">        savePassword = findViewById(R.id.settings_savePasswordBtn);</span>
+
+<span class="fc" id="L73">        settings_homePageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L76">                Intent intent = new Intent(SettingsActivity.this, HomeActivity.class);</span>
+<span class="nc" id="L77">                startActivity(intent);</span>
+<span class="nc" id="L78">            }</span>
+        });
+
+<span class="fc" id="L81">        settings_teamPageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L84">                Intent intent = new Intent(SettingsActivity.this, MultipleViewTeamActivity.class);</span>
+<span class="nc" id="L85">                startActivity(intent);</span>
+<span class="nc" id="L86">            }</span>
+        });
+
+<span class="fc" id="L89">        settings_profilePageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L92">                doesPlayerHaveProfile();</span>
+<span class="nc" id="L93">            }</span>
+        });
+
+<span class="fc" id="L96">        settings_settingsPageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L99">                Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);</span>
+<span class="nc" id="L100">                startActivity(intent);</span>
+<span class="nc" id="L101">            }</span>
+        });
+
+<span class="fc" id="L104">        settings_logOutBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L107">                playerID = -1;</span>
+<span class="fc" id="L108">                username = null;</span>
+<span class="fc" id="L109">                numTeams =  -1;</span>
+<span class="fc" id="L110">                hasProfile = false;</span>
+<span class="fc" id="L111">                teamsPlayerIsOn.clear();</span>
+<span class="fc" id="L112">                Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);</span>
+<span class="fc" id="L113">                startActivity(intent);</span>
+<span class="fc" id="L114">            }</span>
+        });
+
+<span class="fc" id="L117">        saveEmail.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L120">                sendRequestEmail();</span>
+<span class="fc" id="L121">                emailInput.getEditText().setText(&quot;&quot;);</span>
+<span class="fc" id="L122">            }</span>
+        });
+
+<span class="fc" id="L125">        savePassword.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L128">                sendRequestPassword();</span>
+<span class="fc" id="L129">                passwordInput.getEditText().setText(&quot;&quot;);</span>
+<span class="fc" id="L130">            }</span>
+        });
+<span class="fc" id="L132">    }</span>
+
+    /**
+     * Sends a request to update the user's email.
+     */
+    private void sendRequestEmail() {
+<span class="fc" id="L138">        RequestQueue queue = Volley.newRequestQueue(SettingsActivity.this);</span>
+        JsonObjectRequest request;
+
+<span class="fc" id="L141">        JSONObject body = new JSONObject();</span>
+        try {
+<span class="fc" id="L143">            body.put(&quot;player_id&quot;, playerID);</span>
+<span class="fc" id="L144">            body.put(&quot;email&quot;, emailInput.getEditText().getText().toString());</span>
+<span class="nc" id="L145">        } catch (Exception E) {</span>
+<span class="nc" id="L146">            E.printStackTrace();</span>
+<span class="fc" id="L147">        }</span>
+<span class="fc" id="L148">        request = new JsonObjectRequest(Request.Method.PUT, BASE_SERVER_URL + &quot;/players/updateEmail&quot;, body,</span>
+<span class="fc" id="L149">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+<span class="fc" id="L152">                        Log.i(&quot;good response&quot;, response.toString());</span>
+<span class="fc" id="L153">                        saveEmail.setEnabled(false);</span>
+<span class="fc" id="L154">                    }</span>
+                },
+<span class="fc" id="L156">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L159">                        Log.i(&quot;bad response&quot;, error.toString());</span>
+<span class="nc" id="L160">                    }</span>
+                }
+        );
+<span class="fc" id="L163">        queue.add(request);</span>
+<span class="fc" id="L164">    }</span>
+
+    /**
+     * Sends a request to update the user's password.
+     */
+    private void sendRequestPassword() {
+<span class="fc" id="L170">        RequestQueue queue = Volley.newRequestQueue(SettingsActivity.this);</span>
+        JsonObjectRequest request;
+<span class="fc" id="L172">        JSONObject body = new JSONObject();</span>
+
+        try {
+<span class="fc" id="L175">            body.put(&quot;player_id&quot;, playerID);</span>
+<span class="fc" id="L176">            body.put(&quot;password&quot;, passwordInput.getEditText().getText().toString());</span>
+<span class="nc" id="L177">        } catch (Exception E) {</span>
+<span class="nc" id="L178">            E.printStackTrace();</span>
+<span class="fc" id="L179">        }</span>
+<span class="fc" id="L180">        request = new JsonObjectRequest(Request.Method.PUT, BASE_SERVER_URL + &quot;/players/updatePassword&quot;, body,</span>
+<span class="fc" id="L181">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+<span class="fc" id="L184">                        Log.i(&quot;good response&quot;, response.toString());</span>
+<span class="fc" id="L185">                        savePassword.setEnabled(false);</span>
+<span class="fc" id="L186">                    }</span>
+                },
+<span class="fc" id="L188">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L191">                        Log.i(&quot;bad response&quot;, error.toString());</span>
+<span class="nc" id="L192">                    }</span>
+                }
+        );
+<span class="fc" id="L195">        queue.add(request);</span>
+<span class="fc" id="L196">    }</span>
+
+    /**
+     * Called when attempting to go to the profile page. If the user has a profile, it will go the
+     * ProfileViewActivity, if not, it will go to ProfileFirstActivity.
+     */
+    private void doesPlayerHaveProfile() {
+<span class="nc" id="L203">        RequestQueue queue = Volley.newRequestQueue(SettingsActivity.this);</span>
+<span class="nc" id="L204">        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/getProfile/&quot; + playerID, null,</span>
+<span class="nc" id="L205">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+<span class="nc" id="L210">                            Log.i(&quot;has_profile&quot;, String.valueOf(response.getBoolean(&quot;has_profile&quot;)));</span>
+<span class="nc" id="L211">                        } catch (JSONException e) {</span>
+<span class="nc" id="L212">                            throw new RuntimeException(e);</span>
+<span class="nc" id="L213">                        }</span>
+
+                        try {
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                            if(response.getBoolean(&quot;has_profile&quot;)) {</span>
+<span class="nc" id="L217">                                Intent intent = new Intent(SettingsActivity.this, ProfileViewActivity.class);</span>
+<span class="nc" id="L218">                                startActivity(intent);</span>
+<span class="nc" id="L219">                            } else {</span>
+<span class="nc" id="L220">                                Intent intent = new Intent(SettingsActivity.this, ProfileFirstActivity.class);</span>
+<span class="nc" id="L221">                                startActivity(intent);</span>
+                            }
+<span class="nc" id="L223">                        } catch (JSONException e) {</span>
+<span class="nc" id="L224">                            throw new RuntimeException(e);</span>
+<span class="nc" id="L225">                        }</span>
+<span class="nc" id="L226">                    }</span>
+                },
+
+<span class="nc" id="L229">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L232">                        Log.i(&quot;error response&quot;, String.valueOf(error.networkResponse.statusCode));</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                        if(error.networkResponse.statusCode == 404) {</span>
+<span class="nc" id="L234">                            Log.i(&quot;error 404&quot;, &quot;profile not found&quot;);</span>
+                        }
+<span class="nc" id="L236">                    }</span>
+                }
+        );
+<span class="nc" id="L239">        queue.add(request);</span>
+<span class="nc" id="L240">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProfileViewActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">ProfileViewActivity.java</span></div><h1>ProfileViewActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.*;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.time.LocalDate;
+
+/**
+ * @author Nathan Turnis
+ * Class for displaying and handling logic in the Profile View Page
+ */
+<span class="fc" id="L36">public class ProfileViewActivity extends AppCompatActivity {</span>
+
+    ImageButton homeButton;
+    ImageButton teamButton;
+    ImageButton settingsButton;
+    ImageButton profileEditBtn;
+
+    //main user info
+    TextView fullNameText, usernameText, positionText, friendsText;
+    ImageView profilePicture;
+    //characteristics
+    TextView heightText, weightText, birthdayText;
+    //stats
+    TextView preferredPosText, goalsText, assistsText, gamesPlayedText, goalsPerGameText, assistsPerGameText, yellowCardsText, redCardsText;
+    //contact
+    TextView emailText;
+    JSONObject jsonObject;
+
+    View progressBg;
+    ProgressBar progressBar;
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Calls requestPlayerInfo().
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L67">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L68">        setContentView(R.layout.profile_view_activity);</span>
+
+<span class="fc" id="L70">        Log.i(&quot;all good&quot;, &quot;all good&quot;);</span>
+
+<span class="fc" id="L72">        homeButton = findViewById(R.id.profile_homePageButton);</span>
+<span class="fc" id="L73">        teamButton = findViewById(R.id.profile_teamPageButton);</span>
+<span class="fc" id="L74">        settingsButton = findViewById(R.id.profile_settingsPageButton);</span>
+<span class="fc" id="L75">        profileEditBtn = findViewById(R.id.profile_editProfileBtn);</span>
+<span class="fc" id="L76">        fullNameText = findViewById(R.id.profile_fullnameText);</span>
+<span class="fc" id="L77">        usernameText = findViewById(R.id.profile_usernameText);</span>
+<span class="fc" id="L78">        positionText = findViewById(R.id.profile_mainPosText);</span>
+<span class="fc" id="L79">        friendsText = findViewById(R.id.profile_friendsTxt);</span>
+<span class="fc" id="L80">        profilePicture = findViewById(R.id.profile_profilePictureView);</span>
+<span class="fc" id="L81">        heightText = findViewById(R.id.profile_heightText);</span>
+<span class="fc" id="L82">        weightText = findViewById(R.id.profile_weightText);</span>
+<span class="fc" id="L83">        birthdayText = findViewById(R.id.profile_birthdayText);</span>
+<span class="fc" id="L84">        preferredPosText = findViewById(R.id.profile_positionText);</span>
+<span class="fc" id="L85">        goalsText = findViewById(R.id.profile_goalsText);</span>
+<span class="fc" id="L86">        assistsText = findViewById(R.id.profile_assistsText);</span>
+<span class="fc" id="L87">        gamesPlayedText = findViewById(R.id.profile_gamesPlayedText);</span>
+<span class="fc" id="L88">        goalsPerGameText = findViewById(R.id.profile_goalsGameText);</span>
+<span class="fc" id="L89">        assistsPerGameText = findViewById(R.id.profile_assistsGameText);</span>
+<span class="fc" id="L90">        yellowCardsText = findViewById(R.id.profile_yellowCardsText);</span>
+<span class="fc" id="L91">        redCardsText = findViewById(R.id.profile_redCardsText);</span>
+<span class="fc" id="L92">        emailText = findViewById(R.id.profile_emailText);</span>
+<span class="fc" id="L93">        progressBg = findViewById(R.id.profile_progressBg);</span>
+<span class="fc" id="L94">        progressBar = findViewById(R.id.profile_progressCircle);</span>
+
+<span class="fc" id="L96">        progressBar.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L97">        progressBg.setVisibility(View.VISIBLE);</span>
+
+<span class="fc" id="L99">        requestPlayerInfo();</span>
+
+<span class="fc" id="L101">        homeButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L104">                Intent intent = new Intent(ProfileViewActivity.this, HomeActivity.class);</span>
+<span class="nc" id="L105">                startActivity(intent);</span>
+<span class="nc" id="L106">            }</span>
+        });
+
+<span class="fc" id="L109">        teamButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L112">                Intent intent = new Intent(ProfileViewActivity.this, MultipleViewTeamActivity.class);</span>
+<span class="fc" id="L113">                startActivity(intent);</span>
+<span class="fc" id="L114">            }</span>
+        });
+
+<span class="fc" id="L117">        settingsButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L120">                Intent intent = new Intent(ProfileViewActivity.this, SettingsActivity.class);</span>
+<span class="nc" id="L121">                startActivity(intent);</span>
+<span class="nc" id="L122">            }</span>
+        });
+
+<span class="fc" id="L125">        profileEditBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L128">                Intent intent = new Intent(ProfileViewActivity.this, ProfileEditActivity.class);</span>
+<span class="fc" id="L129">                intent.putExtra(&quot;newUser&quot;, false);</span>
+<span class="fc" id="L130">                startActivity(intent);</span>
+<span class="fc" id="L131">            }</span>
+        });
+
+<span class="fc" id="L134">    }</span>
+
+    /**
+     * Sends a GET request fetching all the player profile information.
+     */
+    private void requestPlayerInfo() {
+<span class="fc" id="L140">        RequestQueue queue = Volley.newRequestQueue(ProfileViewActivity.this);</span>
+<span class="fc" id="L141">        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/getProfile/&quot; + playerID, null,</span>
+
+<span class="fc" id="L143">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+<span class="fc" id="L146">                        Log.i(&quot;Profile JSON Response&quot;, response.toString());</span>
+<span class="fc" id="L147">                        jsonObject = response;</span>
+                        try {
+<span class="fc" id="L149">                            updateFields();</span>
+<span class="nc" id="L150">                        } catch (JSONException e) {</span>
+<span class="nc" id="L151">                            throw new RuntimeException(e);</span>
+<span class="fc" id="L152">                        }</span>
+<span class="fc" id="L153">                    }</span>
+                },
+
+<span class="fc" id="L156">        new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L159">                        Log.i(&quot;Profile JSON error&quot;, error.toString());</span>
+<span class="nc" id="L160">                    }</span>
+                }
+
+        );
+<span class="fc" id="L164">        queue.add(request);</span>
+<span class="fc" id="L165">    }</span>
+
+    /**
+     * Updates all of the fields displayed in the player profile.
+     * @throws JSONException
+     */
+    private void updateFields() throws JSONException {
+
+<span class="fc" id="L173">        Bitmap imageBitmap = stringToBitMap(jsonObject.getString(&quot;profile_pic&quot;));</span>
+
+        //if bitmap is null, set profile pic to a default image
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if(imageBitmap == null) {</span>
+<span class="fc" id="L177">            profilePicture.setImageResource(R.drawable.blank_profile);</span>
+        } else {
+<span class="nc" id="L179">            profilePicture.setImageBitmap(imageBitmap);</span>
+        }
+
+        //update all the fields
+<span class="fc" id="L183">        fullNameText.setText(jsonObject.getString(&quot;first_name&quot;) + &quot; &quot; + jsonObject.getString(&quot;last_name&quot;));</span>
+<span class="fc" id="L184">        usernameText.setText(&quot;@&quot; + jsonObject.getString(&quot;username&quot;));</span>
+<span class="fc" id="L185">        positionText.setText(&quot;Position: &quot; + jsonObject.getString(&quot;preferred_position&quot;));</span>
+        //friendsText.setText(&quot;Friends: &quot; + jsonObject.getJSONArray(&quot;friends&quot;).length());
+<span class="fc" id="L187">        heightText.setText((jsonObject.getInt(&quot;height&quot;) / 12) + &quot;' &quot; + jsonObject.getInt(&quot;height&quot;) % 12 + &quot;\&quot;&quot;);</span>
+<span class="fc" id="L188">        weightText.setText(jsonObject.getInt(&quot;weight&quot;) + &quot; lb&quot;);</span>
+<span class="fc" id="L189">        LocalDate date = LocalDate.parse(jsonObject.getString(&quot;birthday&quot;));</span>
+<span class="fc" id="L190">        birthdayText.setText(date.getMonthValue() + &quot;/&quot; + date.getDayOfMonth() + &quot;/&quot; + date.getYear());</span>
+<span class="fc" id="L191">        preferredPosText.setText(jsonObject.getString(&quot;preferred_position&quot;));</span>
+<span class="fc" id="L192">        goalsText.setText(String.valueOf(jsonObject.getInt(&quot;goals&quot;)));</span>
+<span class="fc" id="L193">        assistsText.setText(String.valueOf(jsonObject.getInt(&quot;assists&quot;)));</span>
+<span class="fc" id="L194">        gamesPlayedText.setText(String.valueOf(jsonObject.getInt(&quot;gamesPlayed&quot;)));</span>
+<span class="fc" id="L195">        goalsPerGameText.setText(String.format(&quot;%.2f&quot; , jsonObject.getDouble(&quot;goalsPerGame&quot;)));</span>
+<span class="fc" id="L196">        assistsPerGameText.setText(String.format(&quot;%.2f&quot;, jsonObject.getDouble(&quot;assistPerGame&quot;)));</span>
+<span class="fc" id="L197">        yellowCardsText.setText(String.valueOf(jsonObject.getInt(&quot;yellowCards&quot;)));</span>
+<span class="fc" id="L198">        redCardsText.setText(String.valueOf(jsonObject.getInt(&quot;redCards&quot;)));</span>
+<span class="fc" id="L199">        emailText.setText(jsonObject.getString(&quot;email&quot;));</span>
+
+<span class="fc" id="L201">        progressBar.setVisibility(View.INVISIBLE);</span>
+<span class="fc" id="L202">        progressBg.setVisibility(View.INVISIBLE);</span>
+
+<span class="fc" id="L204">    }</span>
+
+    /**
+     * Converts a given String to a bitmap which can be used to set ImageView's bitmap.
+     * @param encodedString
+     * @return
+     */
+    public Bitmap stringToBitMap(String encodedString){
+        try {
+<span class="fc" id="L213">            byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);</span>
+<span class="fc" id="L214">            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);</span>
+<span class="fc" id="L215">            return bitmap;</span>
+<span class="nc" id="L216">        } catch(Exception e) {</span>
+<span class="nc" id="L217">            e.getMessage();</span>
+<span class="nc" id="L218">            return null;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

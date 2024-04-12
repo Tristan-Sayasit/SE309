@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/logo"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/logo"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SoccerNexus"
+        tools:targetApi="31"
+        android:usesCleartextTraffic="true">
+
+        <activity android:name=".PickupMatchRequestsActivity"
+            android:exported="true"/>
+
+        <activity android:name=".PickupMatchViewActivity"
+            android:exported="true"/>
+
+        <activity android:name=".FriendRequestsActivity"
+            android:exported="true"/>
+
+        <activity android:name=".PickupMatchChallengeActivity"
+            android:exported="true"
+            />
+
+        <activity android:name=".IndividualMessageActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".PrivateMessageLobbyActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".ProfileEditActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".ProfileFirstActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".ProfileViewActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".CreateTeamActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".JoinTeamActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".ViewTeamActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".MultipleViewTeamActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".TeamChatroomActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".MatchHistoryActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".EditTeamActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".PostMatchActivity"
+            android:exported="true"
+            />
+
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true" >
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,209 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PlayerToPlayerChat</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.soccernexusserver.websockets</a>
+</div>
+
+<h1>Coverage Summary for Class: PlayerToPlayerChat (com.example.soccernexusserver.websockets)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PlayerToPlayerChat</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    40%
+  </span>
+  <span class="absValue">
+    (2/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    12.5%
+  </span>
+  <span class="absValue">
+    (6/48)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.soccernexusserver.websockets;
+&nbsp;
+&nbsp;import com.example.soccernexusserver.context.SpringContext;
+&nbsp;import com.example.soccernexusserver.entities.Message;
+&nbsp;import com.example.soccernexusserver.entities.Notification;
+&nbsp;import com.example.soccernexusserver.entities.Player;
+&nbsp;import com.example.soccernexusserver.jparepos.MessageRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.NotificationRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.PlayerRepo;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;import javax.websocket.OnClose;
+&nbsp;import javax.websocket.OnMessage;
+&nbsp;import javax.websocket.OnOpen;
+&nbsp;import javax.websocket.Session;
+&nbsp;import javax.websocket.server.PathParam;
+&nbsp;import javax.websocket.server.ServerEndpoint;
+&nbsp;import java.io.IOException;
+&nbsp;import java.time.LocalDate;
+&nbsp;import java.util.Hashtable;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@ServerEndpoint(&quot;/playerToPlayer/{signed_in_user}/{friend_user}&quot;)
+&nbsp;@Component
+&nbsp;public class PlayerToPlayerChat {
+&nbsp;
+&nbsp;    private final MessageRepo _messageRepo;
+&nbsp;    private final PlayerRepo _playerRepo;
+&nbsp;
+&nbsp;    private final NotificationRepo _notificationRepo;
+&nbsp;
+<b class="fc">&nbsp;    public PlayerToPlayerChat() {</b>
+<b class="fc">&nbsp;        _messageRepo = (MessageRepo) SpringContext.getApplicationContext().getBean(&quot;messageRepo&quot;);</b>
+<b class="fc">&nbsp;        _playerRepo = (PlayerRepo) SpringContext.getApplicationContext().getBean(&quot;playerRepo&quot;);</b>
+<b class="fc">&nbsp;        _notificationRepo = (NotificationRepo) SpringContext.getApplicationContext().getBean(&quot;notificationRepo&quot;);</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    private static Map&lt;Session, String&gt; SessionKeyMap = new Hashtable&lt;&gt;();</b>
+<b class="fc">&nbsp;    private static Map&lt;String, Session&gt; KeySessionMap = new Hashtable&lt;&gt;();</b>
+&nbsp;
+&nbsp;    @OnOpen
+&nbsp;    public void onOpen(Session session, @PathParam(&quot;signed_in_user&quot;) String signed_in_user, @PathParam(&quot;friend_user&quot;) String friend_user) throws IOException {
+&nbsp;        // Handle the case of a duplicate username
+<b class="nc">&nbsp;        String key_value = signed_in_user + &quot;-&quot; + friend_user;</b>
+<b class="nc">&nbsp;        if (KeySessionMap.containsKey(key_value)) {</b>
+<b class="nc">&nbsp;            session.getBasicRemote().sendText(&quot;Already In Chat&quot;);</b>
+<b class="nc">&nbsp;            session.close();</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            SessionKeyMap.put(session, key_value);</b>
+<b class="nc">&nbsp;            KeySessionMap.put(key_value, session);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @OnMessage
+&nbsp;    public void onMessage(Session session, String message) throws IOException {
+<b class="nc">&nbsp;        String key_string = SessionKeyMap.get(session);</b>
+<b class="nc">&nbsp;        String[] split_key = key_string.split(&quot;-&quot;);</b>
+<b class="nc">&nbsp;        String reverse_key = split_key[1] + &quot;-&quot; + split_key[0];</b>
+<b class="nc">&nbsp;        Message newMessage = new Message();</b>
+<b class="nc">&nbsp;        Notification notification = new Notification();</b>
+<b class="nc">&nbsp;        newMessage.message_text = message;</b>
+<b class="nc">&nbsp;        newMessage.time_of_message = LocalDate.now();</b>
+<b class="nc">&nbsp;        Optional&lt;Player&gt; potential_sending_player = _playerRepo.getPlayerByUsername(split_key[0]);</b>
+<b class="nc">&nbsp;        Optional&lt;Player&gt; potential_receiving_player = _playerRepo.getPlayerByUsername(split_key[1]);</b>
+<b class="nc">&nbsp;        if (KeySessionMap.containsKey(reverse_key)) {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                KeySessionMap.get(reverse_key).getBasicRemote().sendText(message);</b>
+<b class="nc">&nbsp;                KeySessionMap.get(key_string).getBasicRemote().sendText(message);</b>
+<b class="nc">&nbsp;                newMessage.is_read = true;</b>
+<b class="nc">&nbsp;                notification.is_read = true;</b>
+<b class="nc">&nbsp;            } catch (Exception e) {</b>
+<b class="nc">&nbsp;                throw new IOException();</b>
+<b class="nc">&nbsp;            }</b>
+&nbsp;        } else {
+&nbsp;            try {
+<b class="nc">&nbsp;                KeySessionMap.get(key_string).getBasicRemote().sendText(message);</b>
+<b class="nc">&nbsp;                newMessage.is_read = false;</b>
+<b class="nc">&nbsp;                notification.is_read = false;</b>
+<b class="nc">&nbsp;            } catch (Exception e) {</b>
+<b class="nc">&nbsp;                throw new IOException();</b>
+<b class="nc">&nbsp;            }</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (potential_receiving_player.isPresent() &amp;&amp; potential_sending_player.isPresent()) {</b>
+<b class="nc">&nbsp;            newMessage.sending_player = potential_sending_player.get();</b>
+<b class="nc">&nbsp;            newMessage.receiving_player = potential_receiving_player.get();</b>
+<b class="nc">&nbsp;            notification.notification_type = &quot;message&quot;;</b>
+<b class="nc">&nbsp;            notification.notification_message = potential_sending_player.get().first_name +&quot; sent you a message!&quot;;</b>
+<b class="nc">&nbsp;            notification.notif_receiving_player = potential_receiving_player.get();</b>
+<b class="nc">&nbsp;            notification.notif_sending_player = potential_sending_player.get();</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            throw new IOException();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        _messageRepo.save(newMessage);</b>
+<b class="nc">&nbsp;        _notificationRepo.save(notification);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @OnClose
+&nbsp;    public void onClose(Session session) {
+<b class="nc">&nbsp;        String key_value = SessionKeyMap.get(session);</b>
+<b class="nc">&nbsp;        SessionKeyMap.remove(session);</b>
+<b class="nc">&nbsp;        KeySessionMap.remove(key_value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-06 02:12</div>
+</div>
+</body>
+</html>

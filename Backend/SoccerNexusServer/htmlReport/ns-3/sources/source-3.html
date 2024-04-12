@@ -1,0 +1,167 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > NotificationController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.soccernexusserver.controllers</a>
+</div>
+
+<h1>Coverage Summary for Class: NotificationController (com.example.soccernexusserver.controllers)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">NotificationController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    88.2%
+  </span>
+  <span class="absValue">
+    (15/17)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.soccernexusserver.controllers;
+&nbsp;
+&nbsp;import com.example.soccernexusserver.entities.Notification;
+&nbsp;import com.example.soccernexusserver.entities.Player;
+&nbsp;import com.example.soccernexusserver.jparepos.NotificationRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.PlayerRepo;
+&nbsp;import io.swagger.annotations.Api;
+&nbsp;import io.swagger.annotations.ApiOperation;
+&nbsp;import io.swagger.annotations.ApiResponse;
+&nbsp;import io.swagger.annotations.ApiResponses;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.web.bind.annotation.PathVariable;
+&nbsp;import org.springframework.web.bind.annotation.RequestMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestMethod;
+&nbsp;import org.springframework.web.bind.annotation.RestController;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@Api(value = &quot;Notification Controller&quot;, description = &quot;Handles notifications&quot;)
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/notifications&quot;)
+&nbsp;public class NotificationController {
+&nbsp;
+&nbsp;    private final PlayerRepo _playerRepo;
+&nbsp;    private final NotificationRepo _notificationRepo;
+&nbsp;
+<b class="fc">&nbsp;    public NotificationController(PlayerRepo _playerRepo, NotificationRepo _notificationRepo) {</b>
+<b class="fc">&nbsp;        this._playerRepo = _playerRepo;</b>
+<b class="fc">&nbsp;        this._notificationRepo = _notificationRepo;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Gets a specific players notifications&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 200, message = &quot;Success&quot;), @ApiResponse(code = 404, message = &quot;Player not foun d&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/getPlayerNotifications/{player_id}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;List&lt;Notification&gt;&gt; GetPlayerNotifications(@PathVariable long player_id) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; potentialPlayer = _playerRepo.findById(player_id);</b>
+<b class="fc">&nbsp;        if (potentialPlayer.isPresent()) {</b>
+<b class="fc">&nbsp;            Player playerActual = potentialPlayer.get();</b>
+<b class="fc">&nbsp;            List&lt;Notification&gt; allNotifs = playerActual.notifications;</b>
+<b class="fc">&nbsp;            allNotifs.removeIf(x -&gt; x.is_read);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(allNotifs, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Reads a notification preventing it from being returned again&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 200, message = &quot;Successful&quot;), @ApiResponse(code = 404, message = &quot;Notification Not found&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/readNotification/{notif_id}&quot;, method = RequestMethod.DELETE)
+&nbsp;    public ResponseEntity&lt;Notification&gt; ReadNotification(@PathVariable long notif_id) {
+<b class="fc">&nbsp;        Optional&lt;Notification&gt; potenNotification = _notificationRepo.findById(notif_id);</b>
+<b class="fc">&nbsp;        if (potenNotification.isPresent()) {</b>
+<b class="fc">&nbsp;            Notification notificationActual = potenNotification.get();</b>
+<b class="fc">&nbsp;            notificationActual.is_read = true;</b>
+<b class="fc">&nbsp;            _notificationRepo.save(notificationActual);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(notificationActual, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-06 02:12</div>
+</div>
+</body>
+</html>

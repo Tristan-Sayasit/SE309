@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewTeamActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">ViewTeamActivity.java</span></div><h1>ViewTeamActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.playerID;
+
+import android.animation.ObjectAnimator;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputLayout;
+import com.se309.soccernexus.util.recyclerviews.Player;
+import com.se309.soccernexus.util.recyclerviews.PlayerListAdapter;
+import com.se309.soccernexus.util.recyclerviews.User;
+import com.se309.soccernexus.util.recyclerviews.UserAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+/**
+ * @author Tristan Sayasit
+ * Class for displaying and handling logic for the View Team page
+ */
+<span class="fc" id="L48">public class ViewTeamActivity extends AppCompatActivity {</span>
+
+    ImageButton profilePageButton;
+    ImageButton teamPageButton;
+    ImageButton homePageButton;
+    ImageButton settingsButton;
+    ImageButton challengeTeamBtn, backBtn;
+    Button invPlayerButton;
+    Button cancelButton;
+    Button chatButton;
+    Button matchHistoryButton;
+    TextView teamName;
+    TextView teamLocation;
+    RecyclerView recyclerView;
+    TextView playerCountTxt;
+    private ArrayList&lt;Player&gt; playerList;
+    private long teamID;
+    ConstraintLayout inviteLayout;
+    TextInputLayout searchUsername;
+    RecyclerView inviteRecyclerView;
+
+<span class="fc" id="L69">    ArrayList&lt;User&gt; userArrayList = new ArrayList&lt;&gt;();</span>
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Gets the proper team ID from extras. Makes a request to the backend for all the
+     * information of the team ID. Updates the team name, player count, and the recycler
+     * view holding each player information. When the user clicks the invite players button,
+     * a window pops up to search players. Upon clicking search, a request is made to search
+     * said player. Updates recycler view with an invite button next to each player.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L84">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L85">        setContentView(R.layout.view_team_activity);</span>
+<span class="fc" id="L86">        teamName = findViewById(R.id.teamNameView);</span>
+<span class="fc" id="L87">        teamLocation = findViewById(R.id.teamLocationView);</span>
+<span class="fc" id="L88">        settingsButton = findViewById(R.id.view_team_settingsPageButton);</span>
+<span class="fc" id="L89">        recyclerView = findViewById(R.id.playersRecyclerView);</span>
+<span class="fc" id="L90">        playerCountTxt = findViewById(R.id.playerCountText);</span>
+<span class="fc" id="L91">        invPlayerButton = findViewById(R.id.view_team_invPlayerButton);</span>
+<span class="fc" id="L92">        chatButton = findViewById(R.id.view_team_chatButton);</span>
+<span class="fc" id="L93">        matchHistoryButton = findViewById(R.id.view_team_matchHistoryButton);</span>
+<span class="fc" id="L94">        inviteLayout = findViewById(R.id.invite_layout);</span>
+<span class="fc" id="L95">        cancelButton = findViewById(R.id.invite_cancel);</span>
+<span class="fc" id="L96">        searchUsername = findViewById(R.id.invite_usernameSearch);</span>
+<span class="fc" id="L97">        inviteRecyclerView = findViewById(R.id.invite_recyclerView);</span>
+<span class="fc" id="L98">        challengeTeamBtn = findViewById(R.id.view_team_challengeBtn);</span>
+<span class="fc" id="L99">        backBtn = findViewById(R.id.view_team_backBtn);</span>
+
+<span class="fc" id="L101">        playerList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L103">        Bundle extras = getIntent().getExtras();</span>
+<span class="fc" id="L104">        teamID = extras.getLong(&quot;teamid&quot;);</span>
+<span class="fc" id="L105">        Log.i(&quot;team id extra&quot;, String.valueOf(teamID));</span>
+
+<span class="fc" id="L107">        RequestQueue queue = Volley.newRequestQueue(ViewTeamActivity.this);</span>
+<span class="fc" id="L108">        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/teams/getTeam/&quot; + teamID, null,</span>
+<span class="fc" id="L109">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    public void onResponse(JSONObject response) {
+<span class="fc" id="L111">                        Log.i(&quot;view response&quot;, response.toString());</span>
+                        try {
+<span class="fc" id="L113">                            teamName.setText(response.getString(&quot;team_name&quot;));</span>
+<span class="fc" id="L114">                            teamLocation.setText(response.getString(&quot;location&quot;));</span>
+
+<span class="fc" id="L116">                            long captainID = response.getJSONObject(&quot;captain&quot;).getLong(&quot;player_id&quot;);</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">                            if (captainID != playerID) {</span>
+<span class="nc" id="L118">                                invPlayerButton.setEnabled(false);</span>
+<span class="nc" id="L119">                                challengeTeamBtn.setEnabled(false);</span>
+<span class="nc" id="L120">                                challengeTeamBtn.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));</span>
+                            }
+<span class="fc" id="L122">                            String firstName = response.getJSONObject(&quot;captain&quot;).getString(&quot;first_name&quot;);</span>
+<span class="fc" id="L123">                            String lastName = response.getJSONObject(&quot;captain&quot;).getString(&quot;last_name&quot;);</span>
+<span class="fc" id="L124">                            String position = response.getJSONObject(&quot;captain&quot;).getString(&quot;preferred_position&quot;);</span>
+<span class="fc" id="L125">                            playerList.add(new Player(firstName + &quot; &quot; + lastName, position, true));</span>
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">                            for(int i = 0; i &lt; response.getJSONArray(&quot;members&quot;).length(); i++) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">                                if(response.getJSONArray(&quot;members&quot;).getJSONObject(i).getLong(&quot;player_id&quot;) == captainID) {</span>
+<span class="fc" id="L129">                                    continue;</span>
+                                }
+<span class="fc" id="L131">                                String firstName1 = response.getJSONArray(&quot;members&quot;).getJSONObject(i).getString(&quot;first_name&quot;);</span>
+<span class="fc" id="L132">                                String lastName1 = response.getJSONArray(&quot;members&quot;).getJSONObject(i).getString(&quot;last_name&quot;);</span>
+<span class="fc" id="L133">                                String position1 = response.getJSONArray(&quot;members&quot;).getJSONObject(i).getString(&quot;preferred_position&quot;);</span>
+<span class="fc" id="L134">                                playerList.add(new Player(firstName1 + &quot; &quot; + lastName1, position1, false));</span>
+                            }
+<span class="fc" id="L136">                            playerCountTxt.setText(playerList.size() + &quot;/12&quot;);</span>
+
+<span class="fc" id="L138">                            PlayerListAdapter adapter = new PlayerListAdapter(playerList);</span>
+<span class="fc" id="L139">                            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L140">                            recyclerView.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L141">                            recyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L142">                            recyclerView.setAdapter(adapter);</span>
+
+<span class="nc" id="L144">                        } catch (JSONException e) {</span>
+<span class="nc" id="L145">                            throw new RuntimeException(e);</span>
+<span class="fc" id="L146">                        }</span>
+<span class="fc" id="L147">                        Log.i(&quot;JSON Response&quot;, response.toString());</span>
+<span class="fc" id="L148">                    }</span>
+                },
+
+<span class="fc" id="L151">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L154">                        Log.i(&quot;JSON Error&quot;, error.toString());</span>
+<span class="nc" id="L155">                    }</span>
+                }
+        );
+<span class="fc" id="L158">        queue.add(request);</span>
+
+<span class="fc" id="L160">        teamName = findViewById(R.id.teamNameView);</span>
+
+<span class="fc" id="L162">        profilePageButton = findViewById(R.id.view_team_profilePageButton);</span>
+<span class="fc" id="L163">        teamPageButton = findViewById(R.id.view_team_teamPageButton);</span>
+<span class="fc" id="L164">        homePageButton = findViewById(R.id.view_team_homePageButton);</span>
+
+<span class="fc" id="L166">        backBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L169">                Intent intent = new Intent(ViewTeamActivity.this, MultipleViewTeamActivity.class);</span>
+<span class="nc" id="L170">                startActivity(intent);</span>
+<span class="nc" id="L171">            }</span>
+        });
+
+<span class="fc" id="L174">        searchUsername.getEditText().setOnKeyListener(new View.OnKeyListener() {</span>
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+<span class="nc bnc" id="L177" title="All 4 branches missed.">                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) &amp;&amp;</span>
+                        (i == KeyEvent.KEYCODE_ENTER)) {
+
+                    try {
+<span class="nc" id="L181">                        InputMethodManager imm = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);</span>
+<span class="nc" id="L182">                        imm.hideSoftInputFromWindow(findViewById(R.id.linearLayout3).getWindowToken(), 0);</span>
+<span class="nc" id="L183">                    } catch (Exception e) {</span>
+<span class="nc" id="L184">                        e.printStackTrace();</span>
+<span class="nc" id="L185">                    }</span>
+
+<span class="nc" id="L187">                    RequestQueue queue = Volley.newRequestQueue(ViewTeamActivity.this);</span>
+<span class="nc" id="L188">                    JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/searchPlayersByUsername/&quot; + searchUsername.getEditText().getText().toString(), null,</span>
+<span class="nc" id="L189">                            new Response.Listener&lt;JSONArray&gt;() {</span>
+                                @Override
+                                public void onResponse(JSONArray response) {
+<span class="nc" id="L192">                                    userArrayList.clear();</span>
+<span class="nc" id="L193">                                    Log.i(&quot;search players&quot;, response.toString());</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">                                    for(int i = 0; i &lt; response.length(); i++) {</span>
+                                        try {
+<span class="nc" id="L196">                                            long id = response.getJSONObject(i).getLong(&quot;player_id&quot;);</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">                                            if(id == playerID) {</span>
+<span class="nc" id="L198">                                                continue;</span>
+                                            }
+<span class="nc" id="L200">                                            String firstName = response.getJSONObject(i).getString(&quot;first_name&quot;);</span>
+<span class="nc" id="L201">                                            String lastName = response.getJSONObject(i).getString(&quot;last_name&quot;);</span>
+<span class="nc" id="L202">                                            String username = response.getJSONObject(i).getString(&quot;username&quot;);</span>
+<span class="nc" id="L203">                                            userArrayList.add(new User(firstName, lastName, username, id, 1, 0));</span>
+<span class="nc" id="L204">                                        } catch (Exception e) {</span>
+
+<span class="nc" id="L206">                                        }</span>
+                                    }
+<span class="nc" id="L208">                                    updateInviteRecyclerView();</span>
+<span class="nc" id="L209">                                }</span>
+                            },
+
+<span class="nc" id="L212">                            new Response.ErrorListener() {</span>
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L215">                                    Log.i(&quot;search error&quot;, error.toString());</span>
+<span class="nc" id="L216">                                }</span>
+                            }
+                    );
+<span class="nc" id="L219">                    queue.add(request);</span>
+
+<span class="nc" id="L221">                    Log.i(&quot;test&quot;, &quot;hit enter&quot;);</span>
+<span class="nc" id="L222">                    return true;</span>
+
+                }
+<span class="nc" id="L225">                return false;</span>
+            }
+        });
+
+<span class="fc" id="L229">        challengeTeamBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L232">                Intent intent = new Intent(ViewTeamActivity.this, PickupMatchChallengeActivity.class);</span>
+<span class="fc" id="L233">                intent.putExtra(&quot;ourTeam&quot;, teamID);</span>
+<span class="fc" id="L234">                startActivity(intent);</span>
+<span class="fc" id="L235">            }</span>
+        });
+
+<span class="fc" id="L238">        invPlayerButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L241">                ObjectAnimator animation = ObjectAnimator.ofFloat(inviteLayout, &quot;translationY&quot;, -2330);</span>
+<span class="fc" id="L242">                animation.setDuration(190);</span>
+<span class="fc" id="L243">                animation.start();</span>
+<span class="fc" id="L244">            }</span>
+        });
+
+<span class="fc" id="L247">        cancelButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L250">                ObjectAnimator animation = ObjectAnimator.ofFloat(inviteLayout, &quot;translationY&quot;, 2330);</span>
+<span class="fc" id="L251">                animation.setDuration(190);</span>
+<span class="fc" id="L252">                animation.start();</span>
+<span class="fc" id="L253">            }</span>
+        });
+
+<span class="fc" id="L256">        profilePageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L259">                Intent intent = new Intent(ViewTeamActivity.this, ProfileViewActivity.class);</span>
+<span class="nc" id="L260">                startActivity(intent);</span>
+<span class="nc" id="L261">            }</span>
+        });
+
+<span class="fc" id="L264">        teamPageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L267">                Intent intent = new Intent(ViewTeamActivity.this, MultipleViewTeamActivity.class);</span>
+<span class="nc" id="L268">                startActivity(intent);</span>
+<span class="nc" id="L269">            }</span>
+        });
+
+<span class="fc" id="L272">        homePageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L275">                Intent intent = new Intent(ViewTeamActivity.this, HomeActivity.class);</span>
+<span class="nc" id="L276">                startActivity(intent);</span>
+<span class="nc" id="L277">            }</span>
+        });
+
+<span class="fc" id="L280">        settingsButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L283">                Intent intent = new Intent(ViewTeamActivity.this, SettingsActivity.class);</span>
+<span class="nc" id="L284">                startActivity(intent);</span>
+<span class="nc" id="L285">            }</span>
+        });
+
+<span class="fc" id="L288">        chatButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="fc" id="L291">                Intent intent = new Intent(ViewTeamActivity.this, TeamChatroomActivity.class);</span>
+<span class="fc" id="L292">                intent.putExtra(&quot;name&quot;, teamName.getText().toString());</span>
+<span class="fc" id="L293">                intent.putExtra(&quot;team_id&quot;, teamID);</span>
+<span class="fc" id="L294">                startActivity(intent);</span>
+<span class="fc" id="L295">            }</span>
+        });
+
+<span class="fc" id="L298">        matchHistoryButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="fc" id="L301">                Intent intent = new Intent(ViewTeamActivity.this, MatchHistoryActivity.class);</span>
+<span class="fc" id="L302">                intent.putExtra(&quot;teamid&quot;, teamID);</span>
+<span class="fc" id="L303">                startActivity(intent);</span>
+<span class="fc" id="L304">            }</span>
+        });
+<span class="fc" id="L306">    }</span>
+
+    /**
+     * Updates the recycler view for inviting players.
+     */
+    public void updateInviteRecyclerView() {
+<span class="nc" id="L312">        UserAdapter adapter2 = new UserAdapter(userArrayList, ViewTeamActivity.this, teamID);</span>
+<span class="nc" id="L313">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="nc" id="L314">        inviteRecyclerView.setLayoutManager(layoutManager);</span>
+<span class="nc" id="L315">        inviteRecyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="nc" id="L316">        inviteRecyclerView.setAdapter(adapter2);</span>
+<span class="nc" id="L317">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

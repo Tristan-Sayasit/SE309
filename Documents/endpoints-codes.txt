@@ -1,0 +1,33 @@
+Signup Endpoints
+POST /accounts/signUp
+response: 400 bad request, player already exists (username exists already)
+	  201 created, responds back with all info sent + id
+
+Login Endpoints
+POST /accounts/login
+response: 400 bad request, if username is not in system
+	  401 unauthorized, wrong password but username is correct
+	  200 OK, returns full player info + id
+
+View Player profile
+GET /players/getPlayer/{id}
+response: 200 ok, returns player info
+	  404 not found, no player with said id
+
+GET /players/allPlayers
+returns all players
+
+inches (convert to feet)
+weight (number in pounds, float)
+birthday , date time
+perferred position (1)
+goals
+assists
+games played
+goals per game ratio
+assists per game
+red cards
+yellow cards
+
+
+

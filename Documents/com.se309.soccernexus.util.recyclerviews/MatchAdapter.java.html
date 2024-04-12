@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MatchAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus.util.recyclerviews</a> &gt; <span class="el_source">MatchAdapter.java</span></div><h1>MatchAdapter.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus.util.recyclerviews;
+
+import android.content.Intent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.se309.soccernexus.MatchHistoryActivity;
+import com.se309.soccernexus.PickupMatchViewActivity;
+import com.se309.soccernexus.R;
+import com.se309.soccernexus.ViewTeamActivity;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
+public class MatchAdapter extends RecyclerView.Adapter&lt;MatchAdapter.ViewHolder&gt; {
+
+    private ArrayList&lt;Match&gt; matchList;
+
+<span class="fc" id="L24">    public MatchAdapter(ArrayList&lt;Match&gt; matchList) {</span>
+<span class="fc" id="L25">        this.matchList = matchList;</span>
+<span class="fc" id="L26">    }</span>
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView nameText, locationText, dateText;
+
+        private View pastMatch;
+        private long matchID;
+
+<span class="fc" id="L35">        public ViewHolder(final View view) {</span>
+<span class="fc" id="L36">            super(view);</span>
+<span class="fc" id="L37">            nameText = view.findViewById(R.id.matches_teamName);</span>
+<span class="fc" id="L38">            locationText = view.findViewById(R.id.matches_location);</span>
+<span class="fc" id="L39">            dateText = view.findViewById(R.id.matches_dateText);</span>
+<span class="fc" id="L40">            pastMatch = view.findViewById(R.id.matches_bg);</span>
+
+<span class="fc" id="L42">            pastMatch.setOnClickListener(new View.OnClickListener() {</span>
+                @Override
+                public void onClick(View view) {
+<span class="fc" id="L45">                    Intent intent = new Intent(view.getContext(), PickupMatchViewActivity.class);</span>
+<span class="fc" id="L46">                    intent.putExtra(&quot;matchid&quot;, matchID);</span>
+<span class="fc" id="L47">                    view.getContext().startActivity(intent);</span>
+<span class="fc" id="L48">                }</span>
+            });
+<span class="fc" id="L50">        }</span>
+    }
+
+    @NonNull
+    @Override
+    public MatchAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+<span class="fc" id="L56">        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.matches_items, parent, false);</span>
+<span class="fc" id="L57">        return new MatchAdapter.ViewHolder(itemView);</span>
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+<span class="fc" id="L63">        String name = matchList.get(position).teamName;</span>
+<span class="fc" id="L64">        String location = matchList.get(position).location;</span>
+<span class="fc" id="L65">        LocalDateTime date = matchList.get(position).date;</span>
+
+<span class="fc" id="L67">        holder.nameText.setText(name);</span>
+<span class="fc" id="L68">        holder.locationText.setText(location);</span>
+<span class="fc" id="L69">        holder.matchID = matchList.get(position).id;</span>
+
+<span class="fc" id="L71">        String shortenedDay = &quot;Sun&quot;;</span>
+
+<span class="pc bpc" id="L73" title="4 of 8 branches missed.">        switch (date.getDayOfWeek().toString().toLowerCase()) {</span>
+            case &quot;sunday&quot;:
+<span class="fc" id="L75">                shortenedDay = &quot;Sun&quot;;</span>
+<span class="fc" id="L76">                break;</span>
+            case &quot;monday&quot;:
+<span class="fc" id="L78">                shortenedDay = &quot;Mon&quot;;</span>
+<span class="fc" id="L79">                break;</span>
+            case &quot;tuesday&quot;:
+<span class="fc" id="L81">                shortenedDay = &quot;Tue&quot;;</span>
+<span class="fc" id="L82">                break;</span>
+            case &quot;wednesday&quot;:
+<span class="nc" id="L84">                shortenedDay = &quot;Wed&quot;;</span>
+<span class="nc" id="L85">                break;</span>
+            case &quot;thursday&quot;:
+<span class="nc" id="L87">                shortenedDay = &quot;Thu&quot;;</span>
+<span class="nc" id="L88">                break;</span>
+            case &quot;friday&quot;:
+<span class="fc" id="L90">                shortenedDay = &quot;Fri&quot;;</span>
+<span class="fc" id="L91">                break;</span>
+            case &quot;saturday&quot;:
+<span class="nc" id="L93">                shortenedDay = &quot;Sat&quot;;</span>
+                break;
+        }
+
+        int regularHour;
+        String period;
+<span class="fc" id="L99">        int militaryHour = date.getHour();</span>
+
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (militaryHour == 0) {</span>
+<span class="nc" id="L102">            regularHour = 12;</span>
+<span class="nc" id="L103">            period = &quot;AM&quot;;</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        } else if (militaryHour == 12) {</span>
+<span class="fc" id="L105">            regularHour = 12;</span>
+<span class="fc" id="L106">            period = &quot;PM&quot;;</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        } else if (militaryHour &lt; 12) {</span>
+<span class="fc" id="L108">            regularHour = militaryHour;</span>
+<span class="fc" id="L109">            period = &quot;AM&quot;;</span>
+        } else {
+<span class="fc" id="L111">            regularHour = militaryHour - 12;</span>
+<span class="fc" id="L112">            period = &quot;PM&quot;;</span>
+        }
+
+<span class="fc" id="L115">        String min = &quot;00&quot;;</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if(date.getMinute() &lt; 10) {</span>
+<span class="fc" id="L117">            min = &quot;0&quot; + date.getMinute();</span>
+        }  else {
+<span class="fc" id="L119">            min = String.valueOf(date.getMinute());</span>
+        }
+
+
+<span class="fc" id="L123">        String dateText = shortenedDay + &quot;, &quot; + date.getMonthValue() + &quot;/&quot; + date.getDayOfMonth() + &quot; &quot; +</span>
+                regularHour + &quot;:&quot; + min + &quot; &quot; + period;
+
+<span class="fc" id="L126">        holder.dateText.setText(dateText);</span>
+
+
+
+<span class="fc" id="L130">    }</span>
+
+    @Override
+    public int getItemCount() {
+<span class="fc" id="L134">        return matchList.size();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

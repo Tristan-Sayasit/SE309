@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/individual_message_backBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="13dp"
+        android:background="#00FFFFFF"
+        android:contentDescription="Back Button"
+        android:scaleType="fitCenter"
+        android:src="@drawable/chevron_left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/individual_message_profilePic"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/blank_profile"
+        app:civ_border_color="#4D4E4E"
+        app:civ_border_width="2dp"
+        app:layout_constraintStart_toEndOf="@+id/individual_message_backBtn"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/individual_message_borderTop"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_marginTop="8dp"
+        android:background="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/individual_message_profilePic" />
+
+    <TextView
+        android:id="@+id/individual_message_userText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="5dp"
+        android:text="Bob Miller"
+        android:textColor="#000000"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/individual_message_profilePic"
+        app:layout_constraintTop_toTopOf="@+id/individual_message_profilePic" />
+
+    <EditText
+        android:id="@+id/individual_message_input"
+        android:layout_width="345dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginBottom="44dp"
+        android:background="@drawable/rounded_text_input"
+        android:ems="10"
+        android:hint="Enter message..."
+        android:inputType="text|textLongMessage"
+        android:minHeight="48dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/individual_message_sendBtn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/rounded_text_input"
+        android:contentDescription="Send Message Button"
+        android:padding="6dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/send_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/individual_message_input"
+        app:layout_constraintStart_toEndOf="@+id/individual_message_input" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/individual_message_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/individual_message_input"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/individual_message_borderTop" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

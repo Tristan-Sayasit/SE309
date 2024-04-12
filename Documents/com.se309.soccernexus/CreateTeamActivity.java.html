@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateTeamActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">CreateTeamActivity.java</span></div><h1>CreateTeamActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.numTeams;
+import static com.se309.soccernexus.util.Const.playerID;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputLayout;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * @author Tristan Sayasit
+ * Class for displaying and handling logic in the Create Team Page
+ */
+<span class="nc" id="L35">public class CreateTeamActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {</span>
+
+
+    TextInputLayout teamName;
+    Button createTeamButton;
+    ImageButton create_team_profilePageButton;
+    ImageButton create_team_teamPageButton;
+    ImageButton create_team_homePageButton;
+    ImageButton create_team_settingsPageButton;
+    Spinner teamLocations;
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons and
+     * sets up the adapter for the dropdown spinner.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L56">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L57">        setContentView(R.layout.create_team_activity);</span>
+
+<span class="nc" id="L59">        teamName = findViewById(R.id.teamName);</span>
+<span class="nc" id="L60">        createTeamButton = findViewById(R.id.createTeamButton);</span>
+<span class="nc" id="L61">        teamLocations = findViewById(R.id.teamLocations);</span>
+
+<span class="nc" id="L63">        create_team_profilePageButton = findViewById(R.id.create_team_profilePageButton);</span>
+<span class="nc" id="L64">        create_team_teamPageButton = findViewById(R.id.create_team_teamPageButton);</span>
+<span class="nc" id="L65">        create_team_homePageButton = findViewById(R.id.create_team_homePageButton);</span>
+<span class="nc" id="L66">        create_team_settingsPageButton = findViewById(R.id.create_team_settingsPageButton);</span>
+
+<span class="nc" id="L68">        ArrayAdapter&lt;CharSequence&gt; adapter = ArrayAdapter.createFromResource(this, R.array.teamNames, android.R.layout.simple_spinner_item);</span>
+<span class="nc" id="L69">        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);</span>
+<span class="nc" id="L70">        teamLocations.setAdapter(adapter);</span>
+<span class="nc" id="L71">        teamLocations.setOnItemSelectedListener(this);</span>
+
+<span class="nc" id="L73">        create_team_profilePageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L76">                doesPlayerHaveProfile();</span>
+<span class="nc" id="L77">            }</span>
+        });
+
+<span class="nc" id="L80">        create_team_teamPageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L83">                Intent intent = new Intent(CreateTeamActivity.this, MultipleViewTeamActivity.class);</span>
+<span class="nc" id="L84">                startActivity(intent);</span>
+<span class="nc" id="L85">            }</span>
+        });
+
+<span class="nc" id="L88">        create_team_homePageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L91">                Intent intent = new Intent(CreateTeamActivity.this, HomeActivity.class);</span>
+<span class="nc" id="L92">                startActivity(intent);</span>
+<span class="nc" id="L93">            }</span>
+        });
+
+<span class="nc" id="L96">        create_team_settingsPageButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L99">                Intent intent = new Intent(CreateTeamActivity.this, SettingsActivity.class);</span>
+<span class="nc" id="L100">                startActivity(intent);</span>
+<span class="nc" id="L101">            }</span>
+        }); {
+
+        }
+
+<span class="nc" id="L106">        createTeamButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L109">                RequestQueue queue = Volley.newRequestQueue(CreateTeamActivity.this);</span>
+<span class="nc" id="L110">                JSONObject body = new JSONObject();</span>
+                try {
+<span class="nc" id="L112">                    body.put(&quot;team_name&quot;, teamName.getEditText().getText().toString());</span>
+<span class="nc" id="L113">                    body.put(&quot;location&quot;, teamLocations.getSelectedItem().toString());</span>
+<span class="nc" id="L114">                    JSONObject body2 = new JSONObject();</span>
+<span class="nc" id="L115">                    body2.put(&quot;player_id&quot;, playerID);</span>
+<span class="nc" id="L116">                    body.put(&quot;captain&quot;, body2);</span>
+<span class="nc" id="L117">                } catch (Exception e) {</span>
+<span class="nc" id="L118">                    e.printStackTrace();</span>
+<span class="nc" id="L119">                }</span>
+
+<span class="nc" id="L121">                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, BASE_SERVER_URL + &quot;/teams/createTeam&quot;, body,</span>
+<span class="nc" id="L122">                        new Response.Listener&lt;JSONObject&gt;() {</span>
+                            public void onResponse(JSONObject response) {
+<span class="nc" id="L124">                                Log.i(&quot;JSON Response&quot;, response.toString());</span>
+<span class="nc" id="L125">                                Intent intent = new Intent(CreateTeamActivity.this, ViewTeamActivity.class);</span>
+                                try {
+<span class="nc" id="L127">                                    intent.putExtra(&quot;teamid&quot;, response.getLong(&quot;team_id&quot;));</span>
+<span class="nc" id="L128">                                } catch (JSONException e) {</span>
+<span class="nc" id="L129">                                    throw new RuntimeException(e);</span>
+<span class="nc" id="L130">                                }</span>
+<span class="nc" id="L131">                                startActivity(intent);</span>
+<span class="nc" id="L132">                            }</span>
+                        },
+
+<span class="nc" id="L135">                        new Response.ErrorListener() {</span>
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L138">                                Log.i(&quot;JSON Error&quot;, error.toString());</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                                if(error.networkResponse.statusCode == 400) {</span>
+<span class="nc" id="L140">                                    Intent intent = new Intent(CreateTeamActivity.this, ProfileFirstActivity.class);</span>
+<span class="nc" id="L141">                                    startActivity(intent);</span>
+                                }
+<span class="nc" id="L143">                            }</span>
+                        }
+                );
+<span class="nc" id="L146">                queue.add(request);</span>
+
+<span class="nc" id="L148">            }</span>
+
+            //teamName.getEditText().getText().clear();
+        });
+<span class="nc" id="L152">    }</span>
+
+    /**
+     * Makes a request to the backend checking whether or not the player has a profile.
+     * If user has a profile, it will take them to the profile view page.
+     * If user does not have a profile, it will take them to the page indicating they
+     * need to make a profile first.
+     */
+    private void doesPlayerHaveProfile() {
+<span class="nc" id="L161">        RequestQueue queue = Volley.newRequestQueue(CreateTeamActivity.this);</span>
+<span class="nc" id="L162">        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/getProfile/&quot; + playerID, null,</span>
+<span class="nc" id="L163">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+<span class="nc" id="L166">                        Intent intent = new Intent(CreateTeamActivity.this, ProfileViewActivity.class);</span>
+<span class="nc" id="L167">                        startActivity(intent);</span>
+<span class="nc" id="L168">                    }</span>
+                },
+
+<span class="nc" id="L171">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L174">                        Log.i(&quot;error response&quot;, String.valueOf(error.networkResponse.statusCode));</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                        if(error.networkResponse.statusCode == 404) {</span>
+<span class="nc" id="L176">                            Intent intent = new Intent(CreateTeamActivity.this, ProfileFirstActivity.class);</span>
+<span class="nc" id="L177">                            startActivity(intent);</span>
+                        }
+<span class="nc" id="L179">                    }</span>
+                }
+
+        );
+<span class="nc" id="L183">        queue.add(request);</span>
+<span class="nc" id="L184">    }</span>
+
+    /**
+     * Called when the user selects an item on the dropdown. Sets the selectedLocation variable
+     * to the dropdown item.
+     * @param adapterView The AdapterView where the selection happened
+     * @param view The view within the AdapterView that was clicked
+     * @param i The position of the view in the adapter
+     * @param l The row id of the item that is selected
+     */
+    @Override
+    public void onItemSelected(AdapterView&lt;?&gt; adapterView, View view, int i, long l) {
+<span class="nc" id="L196">        String selectedLocation = adapterView.getItemAtPosition(i).toString();</span>
+<span class="nc" id="L197">        Toast.makeText(this, selectedLocation, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L198">    }</span>
+
+    /**
+     * Called when nothing is selected in the dropdown. Method is required but empty.
+     * @param adapterView The AdapterView that now contains no selected item.
+     */
+    @Override
+    public void onNothingSelected(AdapterView&lt;?&gt; adapterView) {
+
+<span class="nc" id="L207">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

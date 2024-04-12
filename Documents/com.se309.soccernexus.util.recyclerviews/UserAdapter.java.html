@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus.util.recyclerviews</a> &gt; <span class="el_source">UserAdapter.java</span></div><h1>UserAdapter.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus.util.recyclerviews;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.playerID;
+
+import android.content.Context;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.textclassifier.ConversationActions;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.se309.soccernexus.PrivateMessageLobbyActivity;
+import com.se309.soccernexus.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+/**
+ * @author Nathan Turnis
+ * Class for handling the recycler view logic for User
+ */
+public class UserAdapter extends RecyclerView.Adapter&lt;UserAdapter.ViewHolder&gt;{
+
+    private ArrayList&lt;User&gt; usersList;
+    public Context context;
+    long teamID;
+
+    /**
+     * Creates a new user adapter
+     * @param usersList
+     * @param context the context of where this adapter lives
+     */
+<span class="fc" id="L47">    public UserAdapter(ArrayList&lt;User&gt; usersList, Context context) {</span>
+<span class="fc" id="L48">        this.usersList = usersList;</span>
+<span class="fc" id="L49">        this.context = context;</span>
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * Creates a new user adapter. Stores the id of the team associated with this user.
+     * @param usersList
+     * @param context
+     * @param teamID
+     */
+<span class="nc" id="L58">    public UserAdapter(ArrayList&lt;User&gt; usersList, Context context, long teamID) {</span>
+<span class="nc" id="L59">        this.usersList = usersList;</span>
+<span class="nc" id="L60">        this.context = context;</span>
+<span class="nc" id="L61">        this.teamID = teamID;</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Class for handling each recycler view item
+     */
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView nameTxt;
+        private long otherID;
+        private Button button, denyBtn;
+
+        /**
+         * Creates a new ViewHolder. When adding a friend, a request is made to add the friend. When
+         * inviting a player, a request is made to invite the player.
+         * @param view
+         */
+<span class="fc" id="L78">        public ViewHolder(final View view) {</span>
+<span class="fc" id="L79">            super(view);</span>
+<span class="fc" id="L80">            nameTxt = view.findViewById(R.id.friends_nameTxt);</span>
+<span class="fc" id="L81">            button = view.findViewById(R.id.friends_addFriendBtn);</span>
+<span class="fc" id="L82">            denyBtn = view.findViewById(R.id.friends_denyFriendBtn);</span>
+
+<span class="fc" id="L84">            button.setOnClickListener(new View.OnClickListener() {</span>
+                @Override
+                public void onClick(View v) {
+
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                    if (button.getText().equals(&quot;Add Friend&quot;)) {</span>
+
+                        //call endpoint to add friend for both users
+
+<span class="fc" id="L92">                        JSONObject body = new JSONObject();</span>
+                        try {
+<span class="fc" id="L94">                            body.put(&quot;signed_in_player_id&quot;, playerID);</span>
+<span class="fc" id="L95">                            body.put(&quot;friend_id&quot;, otherID);</span>
+<span class="nc" id="L96">                        } catch (JSONException e) {</span>
+<span class="nc" id="L97">                            throw new RuntimeException(e);</span>
+<span class="fc" id="L98">                        }</span>
+
+
+<span class="fc" id="L101">                        RequestQueue queue = Volley.newRequestQueue(context);</span>
+<span class="fc" id="L102">                        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, BASE_SERVER_URL + &quot;/friends/sendRequest&quot;, body,</span>
+
+<span class="fc" id="L104">                                new Response.Listener&lt;JSONObject&gt;() {</span>
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+<span class="fc" id="L107">                                        Log.i(&quot;Added friend response&quot;, response.toString());</span>
+<span class="fc" id="L108">                                        button.setText(&quot;Request Sent&quot;);</span>
+<span class="fc" id="L109">                                    }</span>
+                                },
+
+<span class="fc" id="L112">                                new Response.ErrorListener() {</span>
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">                                        if (error.networkResponse.statusCode == 400) {</span>
+<span class="fc" id="L116">                                            button.setText(&quot;Already sent&quot;);</span>
+                                        }
+<span class="fc" id="L118">                                    }</span>
+                                }
+
+                        );
+<span class="fc" id="L122">                        queue.add(request);</span>
+
+<span class="fc" id="L124">                        button.setEnabled(false);</span>
+<span class="pc bnc" id="L125" title="All 2 branches missed.">                    } else if(button.getText().equals(&quot;Accept&quot;)) {</span>
+                        //accept friend request
+
+<span class="nc" id="L128">                        JSONObject body = new JSONObject();</span>
+                        try {
+<span class="nc" id="L130">                            body.put(&quot;request_id&quot;, otherID);</span>
+<span class="nc" id="L131">                            body.put(&quot;signed_in_player_id&quot;, playerID);</span>
+<span class="nc" id="L132">                        } catch (JSONException e) {</span>
+<span class="nc" id="L133">                            throw  new RuntimeException(e);</span>
+<span class="nc" id="L134">                        }</span>
+
+<span class="nc" id="L136">                        RequestQueue queue = Volley.newRequestQueue(context);</span>
+<span class="nc" id="L137">                        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, BASE_SERVER_URL + &quot;/friends/acceptRequest&quot;, body,</span>
+
+<span class="nc" id="L139">                                new Response.Listener&lt;JSONObject&gt;() {</span>
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+<span class="nc" id="L142">                                        Log.i(&quot;accepted friend&quot;, response.toString());</span>
+<span class="nc" id="L143">                                        usersList.remove(getAdapterPosition());</span>
+<span class="nc" id="L144">                                        notifyDataSetChanged();</span>
+<span class="nc" id="L145">                                    }</span>
+                                },
+
+<span class="nc" id="L148">                                new Response.ErrorListener() {</span>
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L152">                                    }</span>
+                                }
+
+                        );
+<span class="nc" id="L156">                        queue.add(request);</span>
+<span class="nc" id="L157">                    } else {</span>
+                        //invite
+<span class="nc" id="L159">                        JSONObject body = new JSONObject();</span>
+                        try {
+<span class="nc" id="L161">                            body.put(&quot;player_id&quot;, otherID);</span>
+<span class="nc" id="L162">                            body.put(&quot;team_id&quot;, teamID);</span>
+<span class="nc" id="L163">                        } catch (JSONException e) {</span>
+<span class="nc" id="L164">                            throw new RuntimeException(e);</span>
+<span class="nc" id="L165">                        }</span>
+
+
+<span class="nc" id="L168">                        RequestQueue queue = Volley.newRequestQueue(context);</span>
+<span class="nc" id="L169">                        JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, BASE_SERVER_URL + &quot;/teams/invitePlayer&quot;, body,</span>
+
+<span class="nc" id="L171">                                new Response.Listener&lt;JSONObject&gt;() {</span>
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+<span class="nc" id="L174">                                        Log.i(&quot;invited response&quot;, response.toString());</span>
+<span class="nc" id="L175">                                        button.setEnabled(false);</span>
+<span class="nc" id="L176">                                        button.setText(&quot;Invited&quot;);</span>
+<span class="nc" id="L177">                                    }</span>
+                                },
+
+<span class="nc" id="L180">                                new Response.ErrorListener() {</span>
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L184">                                    }</span>
+                                }
+
+                        );
+<span class="nc" id="L188">                        queue.add(request);</span>
+                    }
+<span class="fc" id="L190">                }</span>
+            });
+
+<span class="fc" id="L193">            denyBtn.setOnClickListener(new View.OnClickListener() {</span>
+                @Override
+                public void onClick(View v) {
+<span class="fc" id="L196">                    RequestQueue queue = Volley.newRequestQueue(context);</span>
+<span class="fc" id="L197">                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.DELETE, BASE_SERVER_URL + &quot;/friends/denyRequest/&quot; + otherID, null,</span>
+
+<span class="fc" id="L199">                            new Response.Listener&lt;JSONObject&gt;() {</span>
+                                @Override
+                                public void onResponse(JSONObject response) {
+<span class="fc" id="L202">                                    Log.i(&quot;deny request&quot;, response.toString());</span>
+<span class="fc" id="L203">                                    usersList.remove(getAdapterPosition());</span>
+<span class="fc" id="L204">                                    notifyDataSetChanged();</span>
+<span class="fc" id="L205">                                }</span>
+                            },
+
+<span class="fc" id="L208">                            new Response.ErrorListener() {</span>
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L212">                                }</span>
+                            }
+
+                    );
+<span class="fc" id="L216">                    queue.add(request);</span>
+<span class="fc" id="L217">                }</span>
+            });
+<span class="fc" id="L219">        }</span>
+    }
+
+    /**
+     * When the ViewHolder is created.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to
+     *               an adapter position.
+     * @param viewType The view type of the new View.
+     *
+     * @return
+     */
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+<span class="fc" id="L233">        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.friends_items, parent, false);</span>
+<span class="fc" id="L234">        return new UserAdapter.ViewHolder(itemView);</span>
+    }
+
+    /**
+     * Binds each item to the recycler view. Sets button text to add friend or invite depending
+     * on the User's addFriendOrInvite.
+     * @param holder The ViewHolder which should be updated to represent the contents of the
+     *        item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+<span class="fc" id="L246">        String firstName = usersList.get(position).getFirstName();</span>
+<span class="fc" id="L247">        String lastName = usersList.get(position).getLastName();</span>
+<span class="fc" id="L248">        holder.nameTxt.setText(firstName + &quot; &quot; + lastName);</span>
+<span class="fc" id="L249">        holder.otherID = usersList.get(position).getID();</span>
+
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">        if(usersList.get(position).getAddFriendOrInvite() == 0) {</span>
+<span class="fc" id="L252">            holder.button.setText(&quot;Add Friend&quot;);</span>
+        } else {
+<span class="nc" id="L254">            holder.button.setText(&quot;Invite&quot;);</span>
+        }
+
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        if(usersList.get(position).canDeny == 1) {</span>
+<span class="fc" id="L258">            holder.denyBtn.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L259">            holder.button.setText(&quot;Accept&quot;);</span>
+        } else {
+<span class="fc" id="L261">            holder.denyBtn.setVisibility(View.GONE);</span>
+        }
+<span class="fc" id="L263">    }</span>
+
+    /**
+     * Gets the userList size
+     * @return userList size
+     */
+    @Override
+    public int getItemCount() {
+<span class="fc" id="L271">        return usersList.size();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

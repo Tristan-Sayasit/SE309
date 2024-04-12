@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HomeActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">HomeActivity.java</span></div><h1>HomeActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import android.animation.ObjectAnimator;
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.playerID;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.ImageView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.se309.soccernexus.util.NotificationType;
+import com.se309.soccernexus.util.recyclerviews.Match;
+import com.se309.soccernexus.util.recyclerviews.MatchAdapter;
+import com.se309.soccernexus.util.recyclerviews.Notification;
+import com.se309.soccernexus.util.recyclerviews.NotificationsAdapter;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.ArrayList;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.se309.soccernexus.util.recyclerviews.Post;
+import com.se309.soccernexus.util.recyclerviews.PostAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * @author Nathan Turnis
+ * Class for displaying and handling logic in the Home Page
+ */
+<span class="fc" id="L52">public class HomeActivity extends AppCompatActivity {</span>
+
+    ImageButton teamsButton;
+    ImageButton profileButton;
+    ImageButton settingsButton;
+    ImageButton notificationsButton, chatButton;
+    ImageButton backBtn;
+    View notificationView;
+    ConstraintLayout notifLayout;
+
+    TextView noMatchesTxt;
+
+    RecyclerView recyclerView, pickupRecyclerView, postsRecyclerView;
+    View fadedBg;
+
+    ImageView redNotif;
+
+    private ArrayList&lt;Notification&gt; notificationList;
+    private ArrayList&lt;Match&gt; matchList;
+    private ArrayList&lt;Post&gt; postList;
+
+    RequestQueue queue;
+
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Makes a request to the backend asking for notifications of the logged-in user.
+     * Based on the response, the notifications recycler view will be updated.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L86">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L87">        setContentView(R.layout.home_activity);</span>
+<span class="fc" id="L88">        profileButton = findViewById(R.id.profilePageButton);</span>
+<span class="fc" id="L89">        teamsButton = findViewById(R.id.teamPageButton);</span>
+<span class="fc" id="L90">        settingsButton = findViewById(R.id.settingsPageButton);</span>
+<span class="fc" id="L91">        notificationsButton = findViewById(R.id.home_notificationsBtn);</span>
+<span class="fc" id="L92">        chatButton = findViewById(R.id.home_chatButton);</span>
+<span class="fc" id="L93">        notificationView = findViewById(R.id.home_notificationView);</span>
+<span class="fc" id="L94">        backBtn = findViewById(R.id.home_notificationCloseBtn);</span>
+<span class="fc" id="L95">        notifLayout = findViewById(R.id.home_notificationLayout);</span>
+<span class="fc" id="L96">        recyclerView = findViewById(R.id.home_recycleViewNotif);</span>
+<span class="fc" id="L97">        pickupRecyclerView = findViewById(R.id.home_pickupRecycler);</span>
+<span class="fc" id="L98">        postsRecyclerView = findViewById(R.id.home_postsRecyclerView);</span>
+<span class="fc" id="L99">        fadedBg = findViewById(R.id.home_fadedBg);</span>
+<span class="fc" id="L100">        redNotif = findViewById(R.id.home_redNotif);</span>
+
+<span class="fc" id="L102">        noMatchesTxt = findViewById(R.id.home_noMatchesText);</span>
+
+<span class="fc" id="L104">        queue = Volley.newRequestQueue(HomeActivity.this);</span>
+
+<span class="fc" id="L106">        notificationList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L107">        matchList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L108">        postList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L110">        getNotifications();</span>
+<span class="fc" id="L111">        getUpcomingMatches();</span>
+
+<span class="fc" id="L113">        postList.add(new Post(&quot;Vikings&quot;, &quot;Lorem ipsum dolor sit amet, pibus euismod enim aliquam et. Morbi ultricies aliquet&quot;, LocalDateTime.now()));</span>
+       // postList.add(new Post(&quot;Vikings&quot;, &quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mi nulla, ornare vel augue in, varius molestie nunc. Quisque imperdiet orci sed lectus dignissim, non laoreet erat mattis. Nulla fermentum risus quis magna scelerisque mattis. Pellentesque eu consequat nibh, sit amet volutpat ante. Suspendisse tempus mollis sapien. Donec sit amet ligula iaculis eros consectetur gravida at et nibh. Aenean quis vehicula lectus. Etiam eget dapibus ligula. Quisque sapien purus, imperdiet sit amet pellentesque at, sollicitudin a leo. Mauris semper enim orci, dapibus euismod enim aliquam et. Morbi ultricies aliquet aliquet. Duis in nisl id velit viverra viverra et nec dolor.&quot;, null));
+
+
+<span class="fc" id="L117">        DividerItemDecoration itemDecorator = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);</span>
+<span class="fc" id="L118">        itemDecorator.setDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.recyclerview_divider));</span>
+
+<span class="fc" id="L120">        recyclerView.addItemDecoration(itemDecorator);</span>
+<span class="fc" id="L121">        postsRecyclerView.addItemDecoration(itemDecorator);</span>
+
+<span class="fc" id="L123">        updatePostsRecyclerView();</span>
+
+<span class="fc" id="L125">        notificationsButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L128">                chatButton.setEnabled(false);</span>
+<span class="fc" id="L129">                notificationsButton.setEnabled(false);</span>
+<span class="fc" id="L130">                ObjectAnimator animation = ObjectAnimator.ofFloat(notifLayout, &quot;translationX&quot;, -785);</span>
+<span class="fc" id="L131">                animation.setDuration(130);</span>
+<span class="fc" id="L132">                ObjectAnimator animation2 = ObjectAnimator.ofFloat(fadedBg, &quot;alpha&quot;, 0f, .75f);</span>
+<span class="fc" id="L133">                animation2.setDuration(130);</span>
+<span class="fc" id="L134">                animation2.start();</span>
+<span class="fc" id="L135">                animation.start();</span>
+<span class="fc" id="L136">            }</span>
+        });
+
+<span class="fc" id="L139">        backBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L142">                chatButton.setEnabled(true);</span>
+<span class="nc" id="L143">                notificationsButton.setEnabled(true);</span>
+<span class="nc" id="L144">                ObjectAnimator animation = ObjectAnimator.ofFloat(notifLayout, &quot;translationX&quot;, 785);</span>
+<span class="nc" id="L145">                animation.setDuration(130);</span>
+<span class="nc" id="L146">                ObjectAnimator animation2 = ObjectAnimator.ofFloat(fadedBg, &quot;alpha&quot;, .75f, 0f);</span>
+<span class="nc" id="L147">                animation2.setDuration(130);</span>
+<span class="nc" id="L148">                animation2.start();</span>
+<span class="nc" id="L149">                animation.start();</span>
+<span class="nc" id="L150">            }</span>
+        });
+
+<span class="fc" id="L153">        profileButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L156">                doesPlayerHaveProfile(ProfileViewActivity.class);</span>
+<span class="fc" id="L157">            }</span>
+        });
+
+<span class="fc" id="L160">        teamsButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="fc" id="L163">                doesPlayerHaveProfile(MultipleViewTeamActivity.class);</span>
+<span class="fc" id="L164">            }</span>
+        });
+
+<span class="fc" id="L167">        settingsButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="fc" id="L170">                Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);</span>
+<span class="fc" id="L171">                startActivity(intent);</span>
+<span class="fc" id="L172">            }</span>
+        });
+
+<span class="fc" id="L175">        chatButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L178">                Intent intent = new Intent(HomeActivity.this, PrivateMessageLobbyActivity.class);</span>
+<span class="fc" id="L179">                startActivity(intent);</span>
+<span class="fc" id="L180">            }</span>
+        });
+
+<span class="fc" id="L183">    }</span>
+
+    private void getNotifications() {
+<span class="fc" id="L186">        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/notifications/getPlayerNotifications/&quot; + playerID, null,</span>
+
+<span class="fc" id="L188">                new Response.Listener&lt;JSONArray&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONArray response) {
+<span class="fc" id="L191">                        Log.i(&quot;notification&quot;, response.toString());</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">                        for(int i = 0; i &lt; response.length(); i++) {</span>
+                            try {
+<span class="fc" id="L194">                                String type = response.getJSONObject(i).getString(&quot;notification_type&quot;);</span>
+<span class="fc" id="L195">                                long id = response.getJSONObject(i).getLong(&quot;notification_id&quot;);</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                                if(type.equals(&quot;message&quot;)) {</span>
+<span class="nc" id="L197">                                    String message = response.getJSONObject(i).getString(&quot;notification_message&quot;);</span>
+
+<span class="nc" id="L199">                                    notificationList.add(new Notification(&quot;New Message!&quot;, message, id, NotificationType.MESSAGE, -1));</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">                                } else if(type.equals(&quot;invite&quot;)) {</span>
+<span class="nc" id="L201">                                    String message = response.getJSONObject(i).getString(&quot;notification_message&quot;);</span>
+<span class="nc" id="L202">                                    notificationList.add(new Notification(&quot;New Invite!&quot;, message, id, NotificationType.INVITE, -1));</span>
+<span class="pc bfc" id="L203" title="All 2 branches covered.">                                } else if(type.equals(&quot;challenge&quot;)) {</span>
+<span class="fc" id="L204">                                    String message = response.getJSONObject(i).getString(&quot;notification_message&quot;);</span>
+<span class="fc" id="L205">                                    notificationList.add(new Notification(&quot;New challenge!&quot;, message, id, NotificationType.CHALLENGE, -1));</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">                                } else if(type.equals(&quot;friend request&quot;)) {</span>
+<span class="fc" id="L207">                                    String message = response.getJSONObject(i).getString(&quot;notification_message&quot;);</span>
+<span class="fc" id="L208">                                    notificationList.add(new Notification(&quot;Friend Request&quot;, message, id, NotificationType.FRIEND_REQUEST, -1));</span>
+<span class="fc" id="L209">                                } else {</span>
+<span class="nc" id="L210">                                    String message = response.getJSONObject(i).getString(&quot;notification_message&quot;);</span>
+<span class="nc" id="L211">                                    notificationList.add(new Notification(&quot;New Notification&quot;, message, id, NotificationType.UNKNOWN, -1));</span>
+                                }
+<span class="nc" id="L213">                            } catch (JSONException e) {</span>
+<span class="nc" id="L214">                                throw new RuntimeException(e);</span>
+<span class="fc" id="L215">                            }</span>
+                        }
+<span class="fc" id="L217">                        updateRecyclerView();</span>
+
+<span class="fc bfc" id="L219" title="All 2 branches covered.">                        if(notificationList.size() &gt; 0) {</span>
+<span class="fc" id="L220">                            redNotif.setVisibility(View.VISIBLE);</span>
+                        } else {
+<span class="fc" id="L222">                            redNotif.setVisibility(View.GONE);</span>
+                        }
+
+<span class="fc" id="L225">                    }</span>
+                },
+
+<span class="fc" id="L228">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L232">                    }</span>
+                }
+
+        );
+<span class="fc" id="L236">        queue.add(request);</span>
+<span class="fc" id="L237">    }</span>
+
+    private void getUpcomingMatches() {
+<span class="fc" id="L240">        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/getUpcomingMatches/&quot; + playerID, null,</span>
+
+<span class="fc" id="L242">                new Response.Listener&lt;JSONArray&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONArray response) {
+<span class="fc" id="L245">                        Log.i(&quot;upcoming matches response&quot;, response.toString());</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">                        for(int i = 0; i &lt; response.length(); i++) {</span>
+                            try {
+<span class="fc" id="L248">                                long matchID = response.getJSONObject(i).getLong(&quot;pickup_match_id&quot;);</span>
+
+<span class="fc" id="L250">                                String teamName = response.getJSONObject(i).getJSONObject(&quot;accepting_team&quot;).getString(&quot;team_name&quot;);</span>
+<span class="fc" id="L251">                                String location = response.getJSONObject(i).getString(&quot;location&quot;);</span>
+<span class="fc" id="L252">                                LocalDateTime date = LocalDateTime.parse(response.getJSONObject(i).getString(&quot;time_of_match&quot;));</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">                                if(date.isAfter(LocalDateTime.now())) {</span>
+<span class="fc" id="L254">                                    matchList.add(new Match(teamName, location, date, matchID));</span>
+                                }
+<span class="nc" id="L256">                            } catch (JSONException e) {</span>
+<span class="nc" id="L257">                                throw new RuntimeException(e);</span>
+<span class="fc" id="L258">                            }</span>
+                        }
+<span class="fc" id="L260">                        updateMatchesRecyclerView();</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">                        if(matchList.size() == 0) {</span>
+<span class="nc" id="L262">                            noMatchesTxt.setVisibility(View.VISIBLE);</span>
+                        } else {
+<span class="fc" id="L264">                            noMatchesTxt.setVisibility(View.GONE);</span>
+                        }
+<span class="fc" id="L266">                    }</span>
+                },
+
+<span class="fc" id="L269">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc bnc" id="L272" title="All 2 branches missed.">                        if(matchList.size() == 0) {</span>
+<span class="nc" id="L273">                            noMatchesTxt.setVisibility(View.VISIBLE);</span>
+                        } else {
+<span class="nc" id="L275">                            noMatchesTxt.setVisibility(View.GONE);</span>
+                        }
+<span class="nc" id="L277">                    }</span>
+                }
+
+        );
+<span class="fc" id="L281">        queue.add(request);</span>
+<span class="fc" id="L282">    }</span>
+
+    /**
+     * Makes a request to see if the user has a profile.
+     * If the user has a profile, the method will send them to the activity described in placeWantToGo.
+     * If the user does not have a profile, the method will send them to the ProfileFirstActivity.
+     * @param placeWantToGo The activity where the caller is intending to go to.
+     */
+    private void doesPlayerHaveProfile(Class placeWantToGo) {
+<span class="fc" id="L291">        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/getProfile/&quot; + playerID, null,</span>
+<span class="fc" id="L292">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+<span class="fc" id="L297">                            Log.i(&quot;has_profile&quot;, String.valueOf(response.getBoolean(&quot;has_profile&quot;)));</span>
+<span class="nc" id="L298">                        } catch (JSONException e) {</span>
+<span class="nc" id="L299">                            throw new RuntimeException(e);</span>
+<span class="fc" id="L300">                        }</span>
+
+                        try {
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">                            if(response.getBoolean(&quot;has_profile&quot;)) {</span>
+<span class="fc" id="L304">                                Intent intent = new Intent(HomeActivity.this, placeWantToGo);</span>
+<span class="fc" id="L305">                                startActivity(intent);</span>
+<span class="fc" id="L306">                            } else {</span>
+<span class="nc" id="L307">                                Intent intent = new Intent(HomeActivity.this, ProfileFirstActivity.class);</span>
+<span class="nc" id="L308">                                startActivity(intent);</span>
+                            }
+<span class="nc" id="L310">                        } catch (JSONException e) {</span>
+<span class="nc" id="L311">                            throw new RuntimeException(e);</span>
+<span class="fc" id="L312">                        }</span>
+<span class="fc" id="L313">                    }</span>
+                },
+
+<span class="fc" id="L316">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L319">                        Log.i(&quot;error response&quot;, String.valueOf(error.networkResponse.statusCode));</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">                        if(error.networkResponse.statusCode == 404) {</span>
+<span class="nc" id="L321">                            Log.i(&quot;error 404&quot;, &quot;profile not found&quot;);</span>
+                        }
+<span class="nc" id="L323">                    }</span>
+                }
+        );
+<span class="fc" id="L326">        queue.add(request);</span>
+<span class="fc" id="L327">    }</span>
+
+    /**
+     * Updates the notification recycler view.
+     */
+    public void updateRecyclerView() {
+<span class="fc" id="L333">        NotificationsAdapter adapter = new NotificationsAdapter(notificationList, HomeActivity.this);</span>
+<span class="fc" id="L334">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L335">        recyclerView.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L336">        recyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L337">        recyclerView.setAdapter(adapter);</span>
+<span class="fc" id="L338">    }</span>
+
+    public void updateMatchesRecyclerView() {
+<span class="fc" id="L341">        MatchAdapter adapter = new MatchAdapter(matchList);</span>
+<span class="fc" id="L342">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L343">        pickupRecyclerView.setNestedScrollingEnabled(false);</span>
+<span class="fc" id="L344">        pickupRecyclerView.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L345">        pickupRecyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L346">        pickupRecyclerView.setAdapter(adapter);</span>
+<span class="fc" id="L347">    }</span>
+
+    public void updatePostsRecyclerView() {
+<span class="fc" id="L350">        PostAdapter adapter = new PostAdapter(postList);</span>
+<span class="fc" id="L351">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L352">        postsRecyclerView.setNestedScrollingEnabled(false);</span>
+<span class="fc" id="L353">        postsRecyclerView.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L354">        postsRecyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L355">        postsRecyclerView.setAdapter(adapter);</span>
+<span class="fc" id="L356">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

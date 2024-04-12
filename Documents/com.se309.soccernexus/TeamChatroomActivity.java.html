@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TeamChatroomActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">TeamChatroomActivity.java</span></div><h1>TeamChatroomActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.playerID;
+import static com.se309.soccernexus.util.Const.username;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.se309.soccernexus.util.recyclerviews.Chat;
+import com.se309.soccernexus.util.recyclerviews.ChatAdapter;
+import com.se309.soccernexus.util.recyclerviews.TeamMsg;
+import com.se309.soccernexus.util.recyclerviews.TeamMsgAdapter;
+import com.se309.soccernexus.websockets.WebSocketListener;
+import com.se309.soccernexus.websockets.WebSocketManager;
+
+import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+
+/**
+ * @author Tristan Sayasit
+ * Class for displaying and handling logic for the Team Chatroom Page
+ */
+<span class="fc" id="L44">public class TeamChatroomActivity extends AppCompatActivity implements WebSocketListener {</span>
+    TextView teamName;
+    ImageButton backBtn, sendBtn;
+    EditText messageInput;
+    RecyclerView recyclerView;
+    private long teamID;
+<span class="fc" id="L50">    public ArrayList&lt;TeamMsg&gt; msgList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L51">    TeamMsgAdapter adapter = new TeamMsgAdapter(msgList);</span>
+    private String myLatestMessage;
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Gets the name and ID of the team via extras. Creates a new instance of the WebSocketManager
+     * and connects to the WebSocket.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L64">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L65">        setContentView(R.layout.team_chat_activity);</span>
+
+<span class="fc" id="L67">        teamName = findViewById(R.id.team_message_teamText);</span>
+<span class="fc" id="L68">        messageInput = findViewById(R.id.team_message_input);</span>
+<span class="fc" id="L69">        sendBtn = findViewById(R.id.team_message_sendBtn);</span>
+<span class="fc" id="L70">        backBtn = findViewById(R.id.team_message_backBtn);</span>
+<span class="fc" id="L71">        recyclerView = findViewById(R.id.team_message_recyclerView);</span>
+
+<span class="fc" id="L73">        Bundle extras = getIntent().getExtras();</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (extras != null) {</span>
+<span class="fc" id="L75">            teamName.setText(extras.getString(&quot;name&quot;));</span>
+<span class="fc" id="L76">            teamID = extras.getLong(&quot;team_id&quot;);</span>
+        }
+
+<span class="fc" id="L79">        String serverUrl = BASE_SERVER_URL + &quot;/teamChat/&quot; + playerID + &quot;/&quot; + teamID;</span>
+<span class="fc" id="L80">        WebSocketManager.getInstance().connectWebSocket(serverUrl);</span>
+<span class="fc" id="L81">        WebSocketManager.getInstance().setWebSocketListener(TeamChatroomActivity.this);</span>
+
+<span class="fc" id="L83">        updateRecyclerView();</span>
+
+<span class="fc" id="L85">        sendBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+
+<span class="fc" id="L89">                String s = messageInput.getText().toString();</span>
+
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">                if (s.equals(&quot;&quot;)) return;</span>
+
+                try {
+<span class="fc" id="L94">                    WebSocketManager.getInstance().sendMessage(s);</span>
+<span class="fc" id="L95">                    myLatestMessage = s;</span>
+<span class="fc" id="L96">                    messageInput.getText().clear();</span>
+<span class="nc" id="L97">                } catch (Exception e) {</span>
+<span class="nc" id="L98">                    Log.d(&quot;ExceptionSendMessage:&quot;, e.getMessage().toString());</span>
+<span class="fc" id="L99">                }</span>
+<span class="fc" id="L100">            }</span>
+        });
+
+<span class="fc" id="L103">        backBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L106">                WebSocketManager.getInstance().disconnectWebSocket();</span>
+<span class="fc" id="L107">                Intent intent = new Intent(TeamChatroomActivity.this, ViewTeamActivity.class);</span>
+<span class="fc" id="L108">                intent.putExtra(&quot;teamid&quot;, teamID);</span>
+<span class="fc" id="L109">                startActivity(intent);</span>
+<span class="fc" id="L110">            }</span>
+        });
+<span class="fc" id="L112">    }</span>
+
+    /**
+     * Updates the recycler view for the chat.
+     */
+    public void updateRecyclerView() {
+<span class="fc" id="L118">        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);</span>
+<span class="fc" id="L119">        linearLayoutManager.setReverseLayout(true);</span>
+<span class="fc" id="L120">        recyclerView.setLayoutManager(linearLayoutManager);</span>
+<span class="fc" id="L121">        recyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L122">        recyclerView.setAdapter(adapter);</span>
+<span class="fc" id="L123">    }</span>
+
+    /**
+     * Called when the WebSocket is open. Method is required but empty.
+     * @param handshakedata Information about the server handshake.
+     */
+    @Override
+    public void onWebSocketOpen(ServerHandshake handshakedata) {
+
+<span class="fc" id="L132">    }</span>
+
+    /**
+     * Called when a new message is received from the WebSocket. The message is return to the
+     * client with the username of who sent it. The method checks to see if the message is the same
+     * as what was just sent, and creates a new TeamMsg object accordingly.
+     * @param message The received WebSocket message.
+     */
+    @Override
+    public void onWebSocketMessage(String message) {
+<span class="fc" id="L142">        runOnUiThread(() -&gt; {</span>
+<span class="fc" id="L143">            String[] split_message = message.split(&quot;\\@\\*&quot;);</span>
+<span class="fc" id="L144">            String username = split_message[0];</span>
+<span class="fc" id="L145">            String actualMessage = split_message[1];</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">            if (actualMessage.equals(myLatestMessage)) {</span>
+<span class="fc" id="L147">                msgList.add(0, new TeamMsg(actualMessage, 1, username));</span>
+            } else {
+<span class="nc" id="L149">                msgList.add(0, new TeamMsg(actualMessage, 0, username));</span>
+            }
+<span class="fc" id="L151">            myLatestMessage = &quot;&quot;;</span>
+<span class="fc" id="L152">            adapter.notifyDataSetChanged();</span>
+<span class="fc" id="L153">            recyclerView.getLayoutManager().scrollToPosition(0);</span>
+<span class="fc" id="L154">        });</span>
+<span class="fc" id="L155">    }</span>
+
+    /**
+     * Called when the WebSocket is closed.
+     * @param code   The status code indicating the reason for closure.
+     * @param reason A human-readable explanation for the closure.
+     * @param remote Indicates whether the closure was initiated by the remote endpoint.
+     */
+    @Override
+    public void onWebSocketClose(int code, String reason, boolean remote) {
+<span class="fc" id="L165">        Log.i(&quot;websocket closed&quot;, reason.toString());</span>
+<span class="fc" id="L166">    }</span>
+
+    /**
+     * Called when the WebSocket receives an error. Method is required but empty.
+     * @param ex The exception that describes the error.
+     */
+    @Override
+    public void onWebSocketError(Exception ex) {
+
+<span class="nc" id="L175">    }</span>
+
+    /**
+     * Called when the activity stops. Closes the WebSocket.
+     */
+    @Override
+    protected void onStop() {
+<span class="fc" id="L182">        super.onStop();</span>
+<span class="fc" id="L183">        WebSocketManager.getInstance().disconnectWebSocket();</span>
+<span class="fc" id="L184">    }</span>
+
+    /**
+     * Called when the activity is destroyed. Closes the WebSocket.
+     */
+    @Override
+    protected void onDestroy() {
+<span class="fc" id="L191">        super.onDestroy();</span>
+<span class="fc" id="L192">        WebSocketManager.getInstance().disconnectWebSocket();</span>
+<span class="fc" id="L193">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

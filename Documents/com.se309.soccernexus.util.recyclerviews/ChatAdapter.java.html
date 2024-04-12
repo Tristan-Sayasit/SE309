@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChatAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus.util.recyclerviews</a> &gt; <span class="el_source">ChatAdapter.java</span></div><h1>ChatAdapter.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus.util.recyclerviews;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.se309.soccernexus.R;
+
+import java.util.ArrayList;
+
+/**
+ * @author Nathan Turnis
+ * Class for handling the recycler view logic for the chat.
+ */
+public class ChatAdapter extends RecyclerView.Adapter&lt;ChatAdapter.ViewHolder&gt;{
+
+    private ArrayList&lt;Chat&gt; chatList;
+
+    /**
+     * Creates a new chat adapter.
+     * @param chatList the list to create.
+     */
+<span class="fc" id="L28">    public ChatAdapter(ArrayList&lt;Chat&gt; chatList) {</span>
+<span class="fc" id="L29">        this.chatList = chatList;</span>
+<span class="fc" id="L30">    }</span>
+
+    /**
+     * Class for handling each recycler view item.
+     */
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        ConstraintLayout leftChatLayout, rightChatLayout;
+        TextView leftChatText, rightChatText, readTxt;
+
+        /**
+         * Creates a new ViewHolder
+         * @param view
+         */
+<span class="fc" id="L43">        public ViewHolder(final View view) {</span>
+<span class="fc" id="L44">            super(view);</span>
+
+<span class="fc" id="L46">            leftChatLayout = view.findViewById(R.id.left_message_layout);</span>
+<span class="fc" id="L47">            rightChatLayout = view.findViewById(R.id.right_message_layout);</span>
+<span class="fc" id="L48">            leftChatText = view.findViewById(R.id.left_chat_text);</span>
+<span class="fc" id="L49">            rightChatText = view.findViewById(R.id.right_chat_text);</span>
+<span class="fc" id="L50">            readTxt = view.findViewById(R.id.message_readTxt);</span>
+<span class="fc" id="L51">        }</span>
+
+        /**
+         * Displays the right message (blue - sender)
+         * @param msg
+         */
+        public void displayRight(String msg) {
+<span class="fc" id="L58">            leftChatLayout.setVisibility(View.GONE);</span>
+<span class="fc" id="L59">            rightChatLayout.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L60">            rightChatText.setText(msg);</span>
+<span class="fc" id="L61">        }</span>
+
+        /**
+         * Displays the left message (gray - receiver)
+         * @param msg
+         */
+        public void displayLeft(String msg) {
+<span class="fc" id="L68">            rightChatLayout.setVisibility(View.GONE);</span>
+<span class="fc" id="L69">            leftChatLayout.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L70">            leftChatText.setText(msg);</span>
+<span class="fc" id="L71">        }</span>
+    }
+
+    /**
+     * When the ViewHolder is created.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to
+     *               an adapter position.
+     * @param viewType The view type of the new View.
+     *
+     * @return new ViewHolder
+     */
+    @NonNull
+    @Override
+    public ChatAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+<span class="fc" id="L85">        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.messages_items, parent, false);</span>
+<span class="fc" id="L86">        return new ChatAdapter.ViewHolder(itemView);</span>
+    }
+
+    /**
+     * Binds each item to the ViewHolder. Decides whether or not to make chat receiver or sender.
+     * @param holder The ViewHolder which should be updated to represent the contents of the
+     *        item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
+    @Override
+    public void onBindViewHolder(@NonNull ChatAdapter.ViewHolder holder, int position) {
+<span class="fc" id="L97">        String msg = chatList.get(position).getMessage();</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if(chatList.get(position).getSenderOrReceiver() == 0) {</span>
+<span class="fc" id="L99">            holder.displayLeft(msg);</span>
+        } else {
+<span class="fc" id="L101">            holder.displayRight(msg);</span>
+        }
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if(chatList.get(position).isHasRead()) {</span>
+<span class="fc" id="L105">            holder.readTxt.setVisibility(View.VISIBLE);</span>
+        } else {
+<span class="fc" id="L107">            holder.readTxt.setVisibility(View.GONE);</span>
+        }
+
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Chat list size.
+     * @return Chat list size
+     */
+    @Override
+    public int getItemCount() {
+<span class="fc" id="L118">        return chatList.size();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

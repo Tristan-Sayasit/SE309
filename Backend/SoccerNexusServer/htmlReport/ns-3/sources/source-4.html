@@ -1,0 +1,330 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PlayerController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.soccernexusserver.controllers</a>
+</div>
+
+<h1>Coverage Summary for Class: PlayerController (com.example.soccernexusserver.controllers)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PlayerController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (15/15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    78.1%
+  </span>
+  <span class="absValue">
+    (75/96)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.soccernexusserver.controllers;
+&nbsp;
+&nbsp;import com.example.soccernexusserver.entities.Message;
+&nbsp;import com.example.soccernexusserver.entities.PickupMatch;
+&nbsp;import com.example.soccernexusserver.entities.Player;
+&nbsp;import com.example.soccernexusserver.entities.Team;
+&nbsp;import com.example.soccernexusserver.jparepos.MessageRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.PickupMatchRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.PlayerRepo;
+&nbsp;import io.swagger.annotations.Api;
+&nbsp;import io.swagger.annotations.ApiOperation;
+&nbsp;import io.swagger.annotations.ApiResponse;
+&nbsp;import io.swagger.annotations.ApiResponses;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;import javax.validation.Valid;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@Api(value = &quot;Player Controller&quot;, description = &quot;Handles operations relating to players&quot;)
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/players&quot;)
+&nbsp;public class PlayerController {
+&nbsp;    private final PlayerRepo _playerRepo;
+&nbsp;    private final MessageRepo _messageRepo;
+&nbsp;
+&nbsp;    private final PickupMatchRepo _pickupMatchRepo;
+&nbsp;
+<b class="fc">&nbsp;    public PlayerController(PlayerRepo _playerRepo, MessageRepo _messageRepo, PickupMatchRepo _pickupMatchRepo) {</b>
+<b class="fc">&nbsp;        this._playerRepo = _playerRepo;</b>
+<b class="fc">&nbsp;        this._messageRepo = _messageRepo;</b>
+<b class="fc">&nbsp;        this._pickupMatchRepo = _pickupMatchRepo;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Gets a specific player by ID&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 200, message = &quot;Successfully got player&quot;), @ApiResponse(code = 404, message = &quot;Player not found&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/getProfile/{id}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Player&gt; GetPlayerProfile(@PathVariable long id) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; player = _playerRepo.findById(id);</b>
+<b class="fc">&nbsp;        return player.map(value -&gt; new ResponseEntity&lt;&gt;(value, HttpStatus.OK)).orElseGet(() -&gt; new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Creates a new player with the sign up&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Player ID in use&quot;), @ApiResponse(code = 201, message = &quot;New player created&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/signUp&quot;, method = RequestMethod.POST)
+&nbsp;    public ResponseEntity&lt;Player&gt; SignUp(@Valid @RequestBody Player newPlayer) {
+<b class="fc">&nbsp;        if (newPlayer.player_id == 0) {</b>
+&nbsp;            try {
+<b class="fc">&nbsp;                _playerRepo.save(newPlayer);</b>
+<b class="fc">&nbsp;            } catch (Exception e) {</b>
+<b class="fc">&nbsp;                return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(newPlayer, HttpStatus.CREATED);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Logs the player in&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 200, message = &quot;Successfully logged in&quot;), @ApiResponse(code = 400, message = &quot;Login failed&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/login&quot;, method = RequestMethod.POST)
+&nbsp;    public ResponseEntity&lt;Player&gt; LogIn(@RequestBody Player loginAccount) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; potential = _playerRepo.login(loginAccount.username, loginAccount.password);</b>
+<b class="fc">&nbsp;        potential.ifPresent(player -&gt; player.password = null);</b>
+<b class="fc">&nbsp;        return potential.map(account -&gt; new ResponseEntity&lt;&gt;(account, HttpStatus.OK)).orElseGet(() -&gt; new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Updates personal profile info&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 200, message = &quot;Successfully updated&quot;), @ApiResponse(code = 404, message = &quot;Player not found&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/updateProfile&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Player&gt; EditPlayerProfile(@RequestBody Player updatedProfile) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; existingPlayer = _playerRepo.findById(updatedProfile.player_id);</b>
+<b class="fc">&nbsp;        if (existingPlayer.isPresent()) {</b>
+<b class="fc">&nbsp;            Player player = existingPlayer.get();</b>
+<b class="fc">&nbsp;            player.first_name = updatedProfile.first_name;</b>
+<b class="fc">&nbsp;            player.last_name = updatedProfile.last_name;</b>
+<b class="fc">&nbsp;            player.birthday = updatedProfile.birthday;</b>
+<b class="fc">&nbsp;            player.height = updatedProfile.height;</b>
+<b class="fc">&nbsp;            player.weight = updatedProfile.weight;</b>
+<b class="fc">&nbsp;            player.preferred_position = updatedProfile.preferred_position;</b>
+<b class="fc">&nbsp;            player.profile_pic = updatedProfile.profile_pic;</b>
+<b class="fc">&nbsp;            player.has_profile = updatedProfile.has_profile;</b>
+<b class="fc">&nbsp;            _playerRepo.save(player);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(player, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Deletes a player&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 200, message = &quot;Profile deleted&quot;), @ApiResponse(code = 400, message = &quot;Database issue&quot;), @ApiResponse(code = 404, message = &quot;Player not found&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/deleteProfile/{id}&quot;, method = RequestMethod.DELETE)
+&nbsp;    public ResponseEntity&lt;String&gt; DeletePlayerProfile(@PathVariable long id) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; profile = _playerRepo.findById(id);</b>
+<b class="fc">&nbsp;        if (profile.isPresent()) {</b>
+&nbsp;            try {
+<b class="fc">&nbsp;                _playerRepo.delete(profile.get());</b>
+<b class="nc">&nbsp;                return new ResponseEntity&lt;&gt;(&quot;Player profile deleted&quot;, HttpStatus.OK);</b>
+<b class="fc">&nbsp;            } catch (Exception e) {</b>
+<b class="fc">&nbsp;                return new ResponseEntity&lt;&gt;(&quot;Sql exception&quot;, HttpStatus.BAD_REQUEST);</b>
+&nbsp;            }
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(&quot;Player Not found&quot;, HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Gets the teams a player is on&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Player not found&quot;), @ApiResponse(code = 200, message = &quot;Success&quot;), @ApiResponse(code = 404, message = &quot;Player not on any trams&quot;),})
+&nbsp;    @RequestMapping(value = &quot;/getCurrentPlayersTeams/{id}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;List&lt;Team&gt;&gt; GetCurrPlayersTeam(@PathVariable long id) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; player = _playerRepo.findById(id);</b>
+<b class="fc">&nbsp;        if (player.isPresent()) {</b>
+<b class="fc">&nbsp;            Player currPlayer = player.get();</b>
+<b class="fc">&nbsp;            if (!currPlayer.teams.isEmpty()) {</b>
+<b class="fc">&nbsp;                return new ResponseEntity&lt;&gt;(currPlayer.teams, HttpStatus.OK);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Get a list of all players&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 200, message = &quot;Successfully returned a list&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/getAllPlayers&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Iterable&lt;Player&gt;&gt; GetAllPlayers() {
+<b class="fc">&nbsp;        return new ResponseEntity&lt;&gt;(_playerRepo.findAll(), HttpStatus.OK);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/getMessageHistory/{signed_in_username}/{friend_username}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;List&lt;Message&gt;&gt; GetMessageHistory(@PathVariable String signed_in_username, @PathVariable String friend_username) {
+<b class="fc">&nbsp;        List&lt;Message&gt; messages = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        Optional&lt;Player&gt; signedInPoten = _playerRepo.getPlayerByUsername(signed_in_username);</b>
+<b class="fc">&nbsp;        Optional&lt;Player&gt; friendPoten = _playerRepo.getPlayerByUsername(friend_username);</b>
+<b class="fc">&nbsp;        if (signedInPoten.isPresent() &amp;&amp; friendPoten.isPresent()) {</b>
+<b class="nc">&nbsp;            Player signedIn = signedInPoten.get();</b>
+<b class="nc">&nbsp;            Player friend = friendPoten.get();</b>
+<b class="nc">&nbsp;            Iterable&lt;Message&gt; nonListMessageHistory = _messageRepo.getMessageHistory(signedIn.player_id, friend.player_id);</b>
+<b class="nc">&nbsp;            nonListMessageHistory.forEach(messages::add);</b>
+<b class="nc">&nbsp;            for (Message message : messages) {</b>
+<b class="nc">&nbsp;                if (message.receiving_player.player_id == signedIn.player_id) {</b>
+<b class="nc">&nbsp;                    message.is_read = true;</b>
+<b class="nc">&nbsp;                    _messageRepo.save(message);</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(messages, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;    @ApiOperation(value = &quot;Searches for players by username&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid username&quot;), @ApiResponse(code = 200, message = &quot;Success&quot;), @ApiResponse(code = 404, message = &quot;No players found&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/searchPlayersByUsername/{username}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Iterable&lt;Player&gt;&gt; SearchPlayersByUsername(@PathVariable String username) {
+<b class="fc">&nbsp;        Iterable&lt;Player&gt; players = _playerRepo.findAllByUsernameContains(username);</b>
+<b class="fc">&nbsp;        players.forEach(x -&gt; {</b>
+<b class="fc">&nbsp;            x.teams = null;</b>
+<b class="fc">&nbsp;            x.notifications = null;</b>
+<b class="fc">&nbsp;            x.received_messages = null;</b>
+<b class="fc">&nbsp;            x.sent_messages = null;</b>
+&nbsp;        });
+<b class="fc">&nbsp;        return new ResponseEntity&lt;&gt;(players, HttpStatus.OK);</b>
+&nbsp;    }
+&nbsp;    @ApiOperation(value = &quot;Searches for players by preferred position&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid preferred position&quot;), @ApiResponse(code = 200, message = &quot;Success&quot;), @ApiResponse(code = 404, message = &quot;No players found&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/searchPlayersByPreferredPosition/{preferred_position}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Iterable&lt;Player&gt;&gt; SearchPlayersByPreferredPosition(@PathVariable String preferred_position) {
+<b class="fc">&nbsp;        Iterable&lt;Player&gt; players = _playerRepo.findAllByPreferredPosition(preferred_position);</b>
+<b class="fc">&nbsp;        return new ResponseEntity&lt;&gt;(players, HttpStatus.OK);</b>
+&nbsp;    }
+&nbsp;    @ApiOperation(value = &quot;Updates a player&#39;s email&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid request body&quot;), @ApiResponse(code = 404, message = &quot;Player not found&quot;), @ApiResponse(code = 200, message = &quot;Success&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/updateEmail&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Player&gt; EditPlayerEmail(@RequestBody Player updatedEmail) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; existingPlayer = _playerRepo.findById(updatedEmail.player_id);</b>
+<b class="fc">&nbsp;        if (existingPlayer.isPresent()) {</b>
+<b class="fc">&nbsp;            Player player = existingPlayer.get();</b>
+<b class="fc">&nbsp;            player.email = updatedEmail.email;</b>
+<b class="fc">&nbsp;            _playerRepo.save(player);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(player, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;    @ApiOperation(value = &quot;Updates a player&#39;s password&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 400, message = &quot;Invalid request body&quot;), @ApiResponse(code = 404, message = &quot;Player not found&quot;), @ApiResponse(code = 200, message = &quot;Success&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/updatePassword&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;Player&gt; EditPlayerPassword(@RequestBody Player updatedPassword) {
+<b class="fc">&nbsp;        Optional&lt;Player&gt; existingPlayer = _playerRepo.findById(updatedPassword.player_id);</b>
+<b class="fc">&nbsp;        if (existingPlayer.isPresent()) {</b>
+<b class="fc">&nbsp;            Player player = existingPlayer.get();</b>
+<b class="fc">&nbsp;            player.password = updatedPassword.password;</b>
+<b class="fc">&nbsp;            _playerRepo.save(player);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(player, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;    @RequestMapping(value = &quot;/getUpcomingMatches/{playerId}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;List&lt;PickupMatch&gt;&gt; GetPlayersUpcomingMatches(@PathVariable long playerId){
+<b class="fc">&nbsp;        Optional&lt;Player&gt; existingPlayer = _playerRepo.findById(playerId);</b>
+<b class="fc">&nbsp;        if(existingPlayer.isPresent()){</b>
+<b class="fc">&nbsp;            Player player = existingPlayer.get();</b>
+<b class="fc">&nbsp;            List&lt;PickupMatch&gt; matches = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;            for(Team team : player.teams){</b>
+<b class="fc">&nbsp;                Iterable&lt;PickupMatch&gt; teamsMatches = _pickupMatchRepo.getMatchHistory(team.team_id);</b>
+<b class="fc">&nbsp;                for(PickupMatch teamMatch: teamsMatches){</b>
+<b class="fc">&nbsp;                    if (matches.stream().noneMatch(x -&gt; x.pickup_match_id == teamMatch.pickup_match_id)) {</b>
+<b class="fc">&nbsp;                        matches.add(teamMatch);</b>
+&nbsp;                    }
+<b class="fc">&nbsp;                }</b>
+<b class="fc">&nbsp;            }</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(matches, HttpStatus.OK);</b>
+&nbsp;        }else{
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-06 02:12</div>
+</div>
+</body>
+</html>

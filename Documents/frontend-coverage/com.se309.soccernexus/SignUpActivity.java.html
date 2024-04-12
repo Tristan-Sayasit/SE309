@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SignUpActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">SignUpActivity.java</span></div><h1>SignUpActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.hasProfile;
+import static com.se309.soccernexus.util.Const.numTeams;
+import static com.se309.soccernexus.util.Const.playerID;
+import static com.se309.soccernexus.util.Const.username;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.util.Patterns;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+/**
+ * @author Nathan Turnis
+ * Class for displaying and handling logic in the Sign Up Page
+ */
+<span class="fc" id="L37">public class SignUpActivity extends AppCompatActivity {</span>
+
+    TextInputLayout emailInput;
+    TextInputLayout usernameInput;
+    TextInputLayout passwordInput;
+    TextInputLayout confirmPassInput;
+    Button signUpButton;
+    ImageButton backButton;
+    TextView warningTextView;
+    View progressBg;
+    ProgressBar progressBar;
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Checks for form validation upon clicking the sign up button. When sign up is clicked,
+     * a request is made to create a new account. Upon a successful response, the user is taken
+     * to the Home page.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L61">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L62">        setContentView(R.layout.sign_up_activity);</span>
+<span class="fc" id="L63">        emailInput = findViewById(R.id.signup_emailInput);</span>
+<span class="fc" id="L64">        usernameInput = findViewById(R.id.signup_usernameInput);</span>
+<span class="fc" id="L65">        passwordInput = findViewById(R.id.signup_passwordInput);</span>
+<span class="fc" id="L66">        confirmPassInput = findViewById(R.id.signup_confirmPasswordInput);</span>
+<span class="fc" id="L67">        signUpButton = findViewById(R.id.signUpButton);</span>
+<span class="fc" id="L68">        backButton = findViewById(R.id.signUp_backBtn);</span>
+<span class="fc" id="L69">        warningTextView = findViewById(R.id.warningTextSignup);</span>
+<span class="fc" id="L70">        progressBg = findViewById(R.id.signup_progressBg);</span>
+<span class="fc" id="L71">        progressBar = findViewById(R.id.signup_progressCircle);</span>
+
+<span class="fc" id="L73">        signUpButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+
+                //if any input is blank, return
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                if(emailInput.getEditText().getText().toString().isEmpty()</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">                    || usernameInput.getEditText().getText().toString().isEmpty()</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                    || passwordInput.getEditText().getText().toString().isEmpty()</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">                    || confirmPassInput.getEditText().getText().toString().isEmpty()) {</span>
+<span class="nc" id="L82">                    warningTextView.setText(&quot;Some fields are blank!&quot;);</span>
+<span class="nc" id="L83">                    warningTextView.setAlpha(1);</span>
+<span class="nc" id="L84">                    return;</span>
+                }
+
+                //if email address is not valid, return
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                if(!Patterns.EMAIL_ADDRESS.matcher(emailInput.getEditText().getText().toString()).matches()) {</span>
+<span class="fc" id="L89">                    warningTextView.setText(&quot;Email is not valid!&quot;);</span>
+<span class="fc" id="L90">                    warningTextView.setAlpha(1);</span>
+<span class="fc" id="L91">                    emailInput.setError(&quot;Invalid Email&quot;);</span>
+<span class="fc" id="L92">                    return;</span>
+                }
+
+                //if passwords do not match, return
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                if(!confirmPassInput.getEditText().getText().toString().equals(passwordInput.getEditText().getText().toString())) {</span>
+<span class="nc" id="L97">                    warningTextView.setText(&quot;Passwords must match!&quot;);</span>
+<span class="nc" id="L98">                    warningTextView.setAlpha(1);</span>
+<span class="nc" id="L99">                    confirmPassInput.setError(&quot;Password does not match&quot;);</span>
+<span class="nc" id="L100">                    return;</span>
+                }
+
+                //closes keyboard when sign up button is pressed
+                try {
+<span class="nc" id="L105">                    InputMethodManager imm = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);</span>
+<span class="nc" id="L106">                    imm.hideSoftInputFromWindow(findViewById(R.id.signup_constraintLayout).getWindowToken(), 0);</span>
+<span class="nc" id="L107">                } catch (Exception e) {</span>
+<span class="nc" id="L108">                    e.printStackTrace();</span>
+<span class="nc" id="L109">                }</span>
+
+                //send sign up information
+<span class="nc" id="L112">                RequestQueue queue = Volley.newRequestQueue(SignUpActivity.this);</span>
+
+<span class="nc" id="L114">                JSONObject body = new JSONObject();</span>
+                try {
+<span class="nc" id="L116">                    body.put(&quot;username&quot;, usernameInput.getEditText().getText().toString());</span>
+<span class="nc" id="L117">                    body.put(&quot;password&quot;, passwordInput.getEditText().getText().toString());</span>
+<span class="nc" id="L118">                    body.put(&quot;email&quot;, emailInput.getEditText().getText().toString());</span>
+<span class="nc" id="L119">                    body.put(&quot;first_name&quot;, &quot;&quot;);</span>
+<span class="nc" id="L120">                    body.put(&quot;last_name&quot;, &quot;&quot;);</span>
+<span class="nc" id="L121">                    body.put(&quot;height&quot;, &quot;&quot;);</span>
+<span class="nc" id="L122">                    body.put(&quot;weight&quot;, &quot;&quot;);</span>
+<span class="nc" id="L123">                    body.put(&quot;birthday&quot;, &quot;&quot;);</span>
+<span class="nc" id="L124">                    body.put(&quot;preferred_position&quot;, &quot;&quot;);</span>
+<span class="nc" id="L125">                    body.put(&quot;has_profile&quot;, false);</span>
+<span class="nc" id="L126">                } catch (Exception e) {</span>
+<span class="nc" id="L127">                    e.printStackTrace();</span>
+<span class="nc" id="L128">                }</span>
+
+<span class="nc" id="L130">                progressBar.setVisibility(View.VISIBLE);</span>
+<span class="nc" id="L131">                progressBg.setVisibility(View.VISIBLE);</span>
+
+<span class="nc" id="L133">                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,  BASE_SERVER_URL + &quot;/players/signUp&quot;, body,</span>
+<span class="nc" id="L134">                        new Response.Listener&lt;JSONObject&gt;() {</span>
+                            public void onResponse(JSONObject response) {
+<span class="nc" id="L136">                                Log.i(&quot;JSON Response&quot;, response.toString());</span>
+                                try {
+<span class="nc" id="L138">                                    playerID = response.getLong(&quot;player_id&quot;);</span>
+<span class="nc" id="L139">                                    Log.i(&quot;user id&quot;, String.valueOf(playerID));</span>
+<span class="nc" id="L140">                                    username = response.getString(&quot;username&quot;);</span>
+<span class="nc" id="L141">                                    numTeams = 0;</span>
+<span class="nc" id="L142">                                    hasProfile = false;</span>
+<span class="nc" id="L143">                                } catch (JSONException e) {</span>
+<span class="nc" id="L144">                                    throw new RuntimeException(e);</span>
+<span class="nc" id="L145">                                }</span>
+
+<span class="nc" id="L147">                                Intent intent = new Intent(SignUpActivity.this, ProfileFirstActivity.class);</span>
+<span class="nc" id="L148">                                startActivity(intent);</span>
+<span class="nc" id="L149">                            }</span>
+                        },
+
+<span class="nc" id="L152">                        new Response.ErrorListener() {</span>
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L155">                                Log.i(&quot;JSON Error&quot;, error.toString());</span>
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                                if(error.toString().equals(&quot;com.android.volley.TimeoutError&quot;)) {</span>
+<span class="nc" id="L158">                                    warningTextView.setText(&quot;Could not establish connection!&quot;);</span>
+<span class="nc" id="L159">                                    warningTextView.setAlpha(1);</span>
+<span class="nc" id="L160">                                    progressBar.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L161">                                    progressBg.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L162">                                    return;</span>
+                                }
+
+<span class="nc" id="L165">                                Log.i(&quot;JSON Error Code&quot;, String.valueOf(error.networkResponse.statusCode));</span>
+
+                                //if error code is 400, username already exists
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                                if(error.networkResponse.statusCode == 400) {</span>
+<span class="nc" id="L169">                                    warningTextView.setText(&quot;Username already exists!&quot;);</span>
+<span class="nc" id="L170">                                    warningTextView.setAlpha(1);</span>
+<span class="nc" id="L171">                                    usernameInput.setError(&quot;Username already exists&quot;);</span>
+                                }
+<span class="nc" id="L173">                                progressBar.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L174">                                progressBg.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L175">                            }</span>
+                        }
+                );
+<span class="nc" id="L178">                queue.add(request);</span>
+<span class="nc" id="L179">            }</span>
+        });
+
+<span class="fc" id="L182">        backButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="nc" id="L185">                Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);</span>
+<span class="nc" id="L186">                startActivity(intent);</span>
+<span class="nc" id="L187">            }</span>
+        });
+<span class="fc" id="L189">    }</span>
+
+    /**
+     * Called when the activity resumes. Clears loading, warning, and text fields.
+     */
+    @Override
+    protected void onResume() {
+<span class="fc" id="L196">        super.onResume();</span>
+<span class="fc" id="L197">        progressBg.setVisibility(View.INVISIBLE);</span>
+<span class="fc" id="L198">        progressBar.setVisibility(View.INVISIBLE);</span>
+<span class="fc" id="L199">        warningTextView.setAlpha(0);</span>
+<span class="fc" id="L200">        emailInput.getEditText().getText().clear();</span>
+<span class="fc" id="L201">        emailInput.setError(null);</span>
+<span class="fc" id="L202">        usernameInput.getEditText().getText().clear();</span>
+<span class="fc" id="L203">        usernameInput.setError(null);</span>
+<span class="fc" id="L204">        passwordInput.getEditText().getText().clear();</span>
+<span class="fc" id="L205">        passwordInput.setError(null);</span>
+<span class="fc" id="L206">        confirmPassInput.getEditText().getText().clear();</span>
+<span class="fc" id="L207">        confirmPassInput.setError(null);</span>
+<span class="fc" id="L208">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

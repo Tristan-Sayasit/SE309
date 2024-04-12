@@ -1,0 +1,331 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MatchController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.soccernexusserver.controllers</a>
+</div>
+
+<h1>Coverage Summary for Class: MatchController (com.example.soccernexusserver.controllers)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MatchController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (10/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    93.4%
+  </span>
+  <span class="absValue">
+    (128/137)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.soccernexusserver.controllers;
+&nbsp;
+&nbsp;import com.example.soccernexusserver.entities.Notification;
+&nbsp;import com.example.soccernexusserver.entities.PickupMatch;
+&nbsp;import com.example.soccernexusserver.entities.Player;
+&nbsp;import com.example.soccernexusserver.entities.Team;
+&nbsp;import com.example.soccernexusserver.jparepos.NotificationRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.PickupMatchRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.PlayerRepo;
+&nbsp;import com.example.soccernexusserver.jparepos.TeamRepo;
+&nbsp;import com.example.soccernexusserver.jsonobjs.*;
+&nbsp;import io.swagger.annotations.ApiOperation;
+&nbsp;import io.swagger.annotations.ApiResponse;
+&nbsp;import io.swagger.annotations.ApiResponses;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/matches&quot;)
+&nbsp;public class MatchController {
+&nbsp;
+&nbsp;    private final TeamRepo _teamRepo;
+&nbsp;    private final PickupMatchRepo _pickupMatchRepo;
+&nbsp;    private final NotificationRepo _notificationRepo;
+&nbsp;    private final PlayerRepo _playerRepo;
+&nbsp;
+<b class="fc">&nbsp;    public MatchController(PickupMatchRepo _pickupMatchRepo, TeamRepo _teamRepo, NotificationRepo _notificationRepo, PlayerRepo _playerRepo) {</b>
+<b class="fc">&nbsp;        this._pickupMatchRepo = _pickupMatchRepo;</b>
+<b class="fc">&nbsp;        this._teamRepo = _teamRepo;</b>
+<b class="fc">&nbsp;        this._notificationRepo = _notificationRepo;</b>
+<b class="fc">&nbsp;        this._playerRepo = _playerRepo;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @ApiOperation(value = &quot;Challenge a team to a match&quot;)
+&nbsp;    @ApiResponses(value = {@ApiResponse(code = 201, message = &quot;Created new match for team&quot;), @ApiResponse(code = 404, message = &quot;1 of 2 teams not found&quot;)})
+&nbsp;    @RequestMapping(value = &quot;/challengeTeam&quot;, method = RequestMethod.POST)
+&nbsp;    public ResponseEntity&lt;PickupMatch&gt; ChallengeTeam(@RequestBody ChallengeTeamJson challenge) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; potentialChallengingTeam = _teamRepo.findById(challenge.challenging_id);</b>
+<b class="fc">&nbsp;        Optional&lt;Team&gt; potentialAcceptingTeam = _teamRepo.findById(challenge.accepting_id);</b>
+<b class="fc">&nbsp;        if (potentialChallengingTeam.isPresent() &amp;&amp; potentialAcceptingTeam.isPresent()) {</b>
+<b class="fc">&nbsp;            Team challengingTeam = potentialChallengingTeam.get();</b>
+<b class="fc">&nbsp;            Team acceptingTeam = potentialAcceptingTeam.get();</b>
+<b class="fc">&nbsp;            PickupMatch match = new PickupMatch();</b>
+<b class="fc">&nbsp;            Notification newChallenge = new Notification();</b>
+<b class="fc">&nbsp;            newChallenge.is_read = false;</b>
+<b class="fc">&nbsp;            newChallenge.notif_sending_team = challengingTeam;</b>
+<b class="fc">&nbsp;            newChallenge.notif_receiving_player = acceptingTeam.captain;</b>
+<b class="fc">&nbsp;            newChallenge.notification_type = &quot;challenge&quot;;</b>
+<b class="fc">&nbsp;            newChallenge.notification_message = &quot;Your team has been challenged by team &quot; + challengingTeam.team_name + &quot;!&quot;;</b>
+<b class="fc">&nbsp;            match.accepting_team = acceptingTeam;</b>
+<b class="fc">&nbsp;            match.challenging_team = challengingTeam;</b>
+<b class="fc">&nbsp;            match.location = challenge.location;</b>
+<b class="fc">&nbsp;            match.time_of_match = challenge.time_of_match;</b>
+<b class="fc">&nbsp;            match.match_format = challenge.match_format;</b>
+<b class="fc">&nbsp;            match.is_finished = false;</b>
+<b class="fc">&nbsp;            match.is_accepted = false;</b>
+<b class="fc">&nbsp;            _pickupMatchRepo.save(match);</b>
+<b class="nc">&nbsp;            _notificationRepo.save(newChallenge);</b>
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(match, HttpStatus.CREATED);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/getMatchHistory/{team_id}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Iterable&lt;PickupMatch&gt;&gt; GetAllMatches(@PathVariable long team_id) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; potentialTeam = _teamRepo.findById(team_id);</b>
+<b class="fc">&nbsp;        if (potentialTeam.isPresent()) {</b>
+<b class="fc">&nbsp;            Team team = potentialTeam.get();</b>
+<b class="fc">&nbsp;            Iterable&lt;PickupMatch&gt; matchHistory = _pickupMatchRepo.getMatchHistory(team.team_id);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(matchHistory, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/getMatchInfo/{match_id}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;MatchSpecificInfoJson&gt; GetSpecificMatchInfo(@PathVariable long match_id) {
+<b class="fc">&nbsp;        Optional&lt;PickupMatch&gt; potentialPickupMatch = _pickupMatchRepo.findById(match_id);</b>
+<b class="fc">&nbsp;        if (potentialPickupMatch.isPresent()) {</b>
+<b class="fc">&nbsp;            PickupMatch actualMatch = potentialPickupMatch.get();</b>
+<b class="fc">&nbsp;            MatchSpecificInfoJson ret = new MatchSpecificInfoJson();</b>
+<b class="fc">&nbsp;            ret.match_id = actualMatch.pickup_match_id;</b>
+<b class="fc">&nbsp;            ret.is_finished = actualMatch.is_finished;</b>
+<b class="fc">&nbsp;            ret.match_time = actualMatch.time_of_match;</b>
+<b class="fc">&nbsp;            ret.format = actualMatch.match_format;</b>
+<b class="fc">&nbsp;            ret.location = actualMatch.location;</b>
+<b class="fc">&nbsp;            ret.accepting_team_goals = actualMatch.accepting_team_goals;</b>
+<b class="fc">&nbsp;            ret.challenging_team_goals = actualMatch.challenging_team_goals;</b>
+<b class="fc">&nbsp;            ret.challenging_team = new SimpleTeamJson();</b>
+<b class="fc">&nbsp;            ret.accepting_team = new SimpleTeamJson();</b>
+<b class="fc">&nbsp;            ret.challenging_team.team_id = actualMatch.challenging_team.team_id;</b>
+<b class="fc">&nbsp;            ret.challenging_team.team_name = actualMatch.challenging_team.team_name;</b>
+<b class="fc">&nbsp;            SimplePlayerJson captainChallenging = new SimplePlayerJson();</b>
+<b class="fc">&nbsp;            captainChallenging.player_id = actualMatch.challenging_team.captain.player_id;</b>
+<b class="fc">&nbsp;            captainChallenging.player_name = actualMatch.challenging_team.captain.first_name + &quot; &quot; + actualMatch.challenging_team.captain.last_name;</b>
+<b class="fc">&nbsp;            captainChallenging.player_position = actualMatch.challenging_team.captain.preferred_position;</b>
+<b class="fc">&nbsp;            ret.challenging_team.captain = captainChallenging;</b>
+<b class="fc">&nbsp;            ret.accepting_team.team_id = actualMatch.accepting_team.team_id;</b>
+<b class="fc">&nbsp;            ret.accepting_team.team_name = actualMatch.accepting_team.team_name;</b>
+<b class="fc">&nbsp;            SimplePlayerJson captainAccepting = new SimplePlayerJson();</b>
+<b class="fc">&nbsp;            captainAccepting.player_id = actualMatch.accepting_team.captain.player_id;</b>
+<b class="fc">&nbsp;            captainAccepting.player_name = actualMatch.accepting_team.captain.first_name + &quot; &quot; + actualMatch.challenging_team.captain.last_name;</b>
+<b class="fc">&nbsp;            captainAccepting.player_position = actualMatch.accepting_team.captain.preferred_position;</b>
+<b class="fc">&nbsp;            ret.accepting_team.captain = captainAccepting;</b>
+<b class="fc">&nbsp;            ret.accepting_team.players = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;            ret.challenging_team.players = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;            for (Player player : actualMatch.challenging_team.members) {</b>
+<b class="fc">&nbsp;                SimplePlayerJson value = new SimplePlayerJson();</b>
+<b class="fc">&nbsp;                value.player_id = player.player_id;</b>
+<b class="fc">&nbsp;                value.player_name = player.first_name + &quot; &quot; + player.last_name;</b>
+<b class="fc">&nbsp;                value.player_position = player.preferred_position;</b>
+<b class="fc">&nbsp;                ret.challenging_team.players.add(value);</b>
+<b class="fc">&nbsp;            }</b>
+<b class="fc">&nbsp;            for (Player player : actualMatch.accepting_team.members) {</b>
+<b class="fc">&nbsp;                SimplePlayerJson value = new SimplePlayerJson();</b>
+<b class="fc">&nbsp;                value.player_id = player.player_id;</b>
+<b class="fc">&nbsp;                value.player_name = player.first_name + &quot; &quot; + player.last_name;</b>
+<b class="fc">&nbsp;                value.player_position = player.preferred_position;</b>
+<b class="fc">&nbsp;                ret.accepting_team.players.add(value);</b>
+<b class="fc">&nbsp;            }</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(ret, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/submitMatchReport&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;PickupMatch&gt; SubmitPostMatchStats(@RequestBody MatchStatsJson matchStats) {
+<b class="fc">&nbsp;        Optional&lt;PickupMatch&gt; potentialMatch = _pickupMatchRepo.findById(matchStats.match_id);</b>
+<b class="fc">&nbsp;        Optional&lt;Team&gt; potentialTeam = _teamRepo.findById(matchStats.team_id);</b>
+<b class="fc">&nbsp;        if (potentialMatch.isPresent() &amp;&amp; potentialTeam.isPresent()) {</b>
+<b class="fc">&nbsp;            PickupMatch match = potentialMatch.get();</b>
+<b class="fc">&nbsp;            Team team = potentialTeam.get();</b>
+<b class="fc">&nbsp;            if (match.accepting_team.team_id == team.team_id) {</b>
+<b class="fc">&nbsp;                match.accepting_team_goals += matchStats.goals_scored.size();</b>
+<b class="fc">&nbsp;                match.a_team_report_done = true;</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                match.challenging_team_goals += matchStats.goals_scored.size();</b>
+<b class="fc">&nbsp;                match.c_team_report_done = true;</b>
+&nbsp;            }
+<b class="fc">&nbsp;            for (GoalInfoJson goal : matchStats.goals_scored) {</b>
+<b class="fc">&nbsp;                Optional&lt;Player&gt; potentialPlayer = _playerRepo.findById(goal.player_id);</b>
+<b class="fc">&nbsp;                if (potentialPlayer.isPresent()) {</b>
+<b class="fc">&nbsp;                    Player player = potentialPlayer.get();</b>
+<b class="fc">&nbsp;                    player.assists += goal.assists_made;</b>
+<b class="fc">&nbsp;                    player.goals += goal.number_of_goals;</b>
+<b class="fc">&nbsp;                    player.assistPerGame = (float) player.assists / player.gamesPlayed;</b>
+<b class="fc">&nbsp;                    player.goalsPerGame = (float) player.goals / player.gamesPlayed;</b>
+<b class="fc">&nbsp;                    _playerRepo.save(player);</b>
+&nbsp;                }
+<b class="fc">&nbsp;            }</b>
+<b class="fc">&nbsp;            _pickupMatchRepo.save(match);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(match, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/finishMatch&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;PickupMatch&gt; FinishMatch(@RequestBody PickupMatch match) {
+<b class="fc">&nbsp;        Optional&lt;PickupMatch&gt; potentialMatch = _pickupMatchRepo.findById(match.pickup_match_id);</b>
+<b class="fc">&nbsp;        if (potentialMatch.isPresent()) {</b>
+<b class="fc">&nbsp;            PickupMatch actualMatch = potentialMatch.get();</b>
+<b class="fc">&nbsp;            actualMatch.is_finished = true;</b>
+<b class="fc">&nbsp;            for (Player player : actualMatch.challenging_team.members) {</b>
+<b class="fc">&nbsp;                AdjustPlayerFinishStats(player);</b>
+<b class="fc">&nbsp;            }</b>
+<b class="fc">&nbsp;            for (Player player : actualMatch.accepting_team.members) {</b>
+<b class="fc">&nbsp;                AdjustPlayerFinishStats(player);</b>
+<b class="fc">&nbsp;            }</b>
+<b class="fc">&nbsp;            _pickupMatchRepo.save(actualMatch);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(actualMatch, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void AdjustPlayerFinishStats(Player player) {
+<b class="fc">&nbsp;        player.gamesPlayed++;</b>
+<b class="fc">&nbsp;        player.goalsPerGame = (float) player.goals / player.gamesPlayed;</b>
+<b class="fc">&nbsp;        player.assistPerGame = (float) player.assists / player.gamesPlayed;</b>
+<b class="fc">&nbsp;        _playerRepo.save(player);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/getChallenges/{team_id}&quot;, method = RequestMethod.GET)
+&nbsp;    public ResponseEntity&lt;Iterable&lt;PickupMatch&gt;&gt; GetChallenges(@PathVariable long team_id) {
+<b class="fc">&nbsp;        Optional&lt;Team&gt; potentialTeam = _teamRepo.findById(team_id);</b>
+<b class="fc">&nbsp;        if (potentialTeam.isPresent()) {</b>
+<b class="fc">&nbsp;            Iterable&lt;PickupMatch&gt; challenges = _pickupMatchRepo.getChallenges(team_id);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(challenges, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/acceptChallenge&quot;, method = RequestMethod.PUT)
+&nbsp;    public ResponseEntity&lt;PickupMatch&gt; AcceptChallenge(@RequestBody PickupMatch match_to_accept) {
+<b class="fc">&nbsp;        Optional&lt;PickupMatch&gt; potentialMatch = _pickupMatchRepo.findById(match_to_accept.pickup_match_id);</b>
+<b class="fc">&nbsp;        if (potentialMatch.isPresent()) {</b>
+<b class="fc">&nbsp;            PickupMatch match = potentialMatch.get();</b>
+<b class="fc">&nbsp;            match.is_accepted = true;</b>
+<b class="fc">&nbsp;            _pickupMatchRepo.save(match);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(match, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @RequestMapping(value = &quot;/denyChallenge/{match_to_decline}&quot;, method = RequestMethod.DELETE)
+&nbsp;    public ResponseEntity&lt;PickupMatch&gt; DenyChallenge(@PathVariable long match_to_decline) {
+<b class="fc">&nbsp;        Optional&lt;PickupMatch&gt; potentialMatch = _pickupMatchRepo.findById(match_to_decline);</b>
+<b class="fc">&nbsp;        if (potentialMatch.isPresent()) {</b>
+<b class="fc">&nbsp;            PickupMatch match = potentialMatch.get();</b>
+<b class="fc">&nbsp;            _pickupMatchRepo.delete(match);</b>
+<b class="fc">&nbsp;            return new ResponseEntity&lt;&gt;(match, HttpStatus.OK);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-06 02:12</div>
+</div>
+</body>
+</html>

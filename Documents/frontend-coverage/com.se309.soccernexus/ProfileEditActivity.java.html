@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProfileEditActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">ProfileEditActivity.java</span></div><h1>ProfileEditActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.playerID;
+
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
+import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Calendar;
+
+/**
+ * @author Nathan Turnis
+ * Class for displaying handling logic in the Profile Edit/Create Page
+ */
+<span class="fc" id="L51">public class ProfileEditActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {</span>
+
+    ImageView profileImage;
+    TextView pageTitle;
+    TextView warningText;
+    TextInputLayout firstNameInput, lastNameInput, weightInput;
+    Button dateButton;
+    Button saveButton, cancelButton;
+    Spinner heightFeetSpinner, heightInchesSpinner, posSpinner;
+    LocalDate date;
+    ImageButton profilePictureBtn;
+    Boolean isNewUser;
+
+    String bitmapString;
+
+    View progressBg;
+    ProgressBar progressBar;
+
+    //values birthday selector will initialize to
+    int yearToPick;
+    int monthToPick;
+    int dayToPick;
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Depending on whether or not the user has a profile, the title will be updated to
+     * &quot;Edit Profile&quot; or &quot;Create Profile&quot;.
+     * Sets up all the input and dropdown fields that the user can edit. Creates logic for the
+     * date picker. Upon selecting a profile picture from the android device, the picture
+     * is converted to a bitmap image.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L88">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L89">        setContentView(R.layout.profile_edit_activity);</span>
+
+<span class="fc" id="L91">        Bundle extras = getIntent().getExtras();</span>
+<span class="fc" id="L92">        isNewUser = extras.getBoolean(&quot;newUser&quot;);</span>
+
+<span class="fc" id="L94">        profileImage = findViewById(R.id.profile_edit_profilePictureView);</span>
+<span class="fc" id="L95">        pageTitle = findViewById(R.id.profile_edit_title);</span>
+<span class="fc" id="L96">        warningText = findViewById(R.id.profile_edit_warningText);</span>
+<span class="fc" id="L97">        firstNameInput = findViewById(R.id.profile_edit_firstNameInput);</span>
+<span class="fc" id="L98">        lastNameInput = findViewById(R.id.profile_edit_lastNameInput);</span>
+<span class="fc" id="L99">        heightFeetSpinner = findViewById(R.id.profile_edit_feetSpinner);</span>
+<span class="fc" id="L100">        heightInchesSpinner = findViewById(R.id.profile_edit_inchesSpinner);</span>
+<span class="fc" id="L101">        weightInput = findViewById(R.id.profile_edit_weightInput);</span>
+<span class="fc" id="L102">        dateButton = findViewById(R.id.profile_edit_birthdayButton);</span>
+<span class="fc" id="L103">        saveButton = findViewById(R.id.profile_edit_saveBtn);</span>
+<span class="fc" id="L104">        cancelButton = findViewById(R.id.profile_edit_cancelBtn);</span>
+<span class="fc" id="L105">        posSpinner = findViewById(R.id.profile_edit_positionSpinner);</span>
+<span class="fc" id="L106">        profilePictureBtn = findViewById(R.id.profile_edit_selectImgBtn);</span>
+<span class="fc" id="L107">        progressBg = findViewById(R.id.profile_edit_progressBg);</span>
+<span class="fc" id="L108">        progressBar = findViewById(R.id.profile_edit_progressCircle);</span>
+
+        //if we are a new user, go to creation, otherwise go to edit
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if(isNewUser) {</span>
+<span class="nc" id="L112">            date = LocalDate.now();</span>
+<span class="nc" id="L113">            yearToPick = Calendar.getInstance().get(Calendar.YEAR);</span>
+<span class="nc" id="L114">            monthToPick = Calendar.getInstance().get(Calendar.MONTH);</span>
+<span class="nc" id="L115">            dayToPick = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);</span>
+<span class="nc" id="L116">            dateButton.setText(date.getMonthValue() + &quot;/&quot; + date.getDayOfMonth() + &quot;/&quot; + date.getYear());</span>
+<span class="nc" id="L117">            saveButton.setText(&quot;Create Profile&quot;);</span>
+<span class="nc" id="L118">            pageTitle.setText(&quot;Create Profile&quot;);</span>
+<span class="nc" id="L119">            cancelButton.setEnabled(false);</span>
+<span class="nc" id="L120">            cancelButton.setVisibility(View.INVISIBLE);</span>
+        } else {
+<span class="fc" id="L122">            progressBg.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L123">            progressBar.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L124">            saveButton.setText(&quot;Save Changes&quot;);</span>
+<span class="fc" id="L125">            pageTitle.setText(&quot;Edit Profile&quot;);</span>
+<span class="fc" id="L126">            cancelButton.setEnabled(true);</span>
+<span class="fc" id="L127">            cancelButton.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L128">            updateInformation();</span>
+        }
+
+        //adapter setup for 3 dropdowns/pickers
+<span class="fc" id="L132">        ArrayAdapter&lt;CharSequence&gt; feetAdapter = ArrayAdapter.createFromResource(this, R.array.heightFeet, android.R.layout.simple_spinner_item);</span>
+<span class="fc" id="L133">        ArrayAdapter&lt;CharSequence&gt; inchesAdapter = ArrayAdapter.createFromResource(this, R.array.heightInches, android.R.layout.simple_spinner_item);</span>
+<span class="fc" id="L134">        ArrayAdapter&lt;CharSequence&gt; posAdapter = ArrayAdapter.createFromResource(this, R.array.preferredPositions, android.R.layout.simple_spinner_item);</span>
+<span class="fc" id="L135">        feetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);</span>
+<span class="fc" id="L136">        inchesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);</span>
+<span class="fc" id="L137">        posAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);</span>
+<span class="fc" id="L138">        heightFeetSpinner.setAdapter(feetAdapter);</span>
+<span class="fc" id="L139">        heightInchesSpinner.setAdapter(inchesAdapter);</span>
+<span class="fc" id="L140">        posSpinner.setAdapter(posAdapter);</span>
+<span class="fc" id="L141">        heightFeetSpinner.setOnItemSelectedListener(this);</span>
+<span class="fc" id="L142">        heightInchesSpinner.setOnItemSelectedListener(this);</span>
+<span class="fc" id="L143">        posSpinner.setOnItemSelectedListener(this);</span>
+
+
+<span class="fc" id="L146">        profilePictureBtn.setOnClickListener(new View.OnClickListener() {</span>
+            // Registers a photo picker activity launcher in single-select mode.
+<span class="fc" id="L148">            ActivityResultLauncher&lt;PickVisualMediaRequest&gt; pickMedia =</span>
+<span class="fc" id="L149">                    registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -&gt; {</span>
+                        // Callback is invoked after the user selects a media item or closes the
+                        // photo picker.
+                        Bitmap bitmap;
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                        if (uri != null) {</span>
+<span class="nc" id="L154">                            Log.d(&quot;PhotoPicker&quot;, &quot;Selected URI: &quot; + uri);</span>
+
+                            try {
+<span class="nc" id="L157">                                bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(getApplicationContext().getContentResolver(), uri));</span>
+<span class="nc" id="L158">                            } catch (IOException e) {</span>
+<span class="nc" id="L159">                                throw new RuntimeException(e);</span>
+<span class="nc" id="L160">                            }</span>
+<span class="nc" id="L161">                            profileImage.setImageBitmap(bitmap);</span>
+<span class="nc" id="L162">                            bitmapString = bitmapToString(bitmap);</span>
+                        } else {
+<span class="nc" id="L164">                            Log.d(&quot;PhotoPicker&quot;, &quot;No media selected&quot;);}</span>
+<span class="nc" id="L165">                    });</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L168">                pickMedia.launch(new PickVisualMediaRequest.Builder()</span>
+<span class="nc" id="L169">                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)</span>
+<span class="nc" id="L170">                        .build());</span>
+<span class="nc" id="L171">            }</span>
+        });
+<span class="fc" id="L173">        dateButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L176">                openDialog(yearToPick, monthToPick, dayToPick);</span>
+<span class="nc" id="L177">            }</span>
+        });
+
+<span class="fc" id="L180">        saveButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L183">                sendRequest();</span>
+<span class="fc" id="L184">            }</span>
+        });
+
+<span class="fc" id="L187">        cancelButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L190">                Intent intent = new Intent(ProfileEditActivity.this, ProfileViewActivity.class);</span>
+<span class="nc" id="L191">                startActivity(intent);</span>
+<span class="nc" id="L192">            }</span>
+        });
+<span class="fc" id="L194">    }</span>
+
+    /**
+     * Sends request to backend to update/create the player profile. Checks for form validation.
+     */
+    private void sendRequest() {
+
+        //if fields are blank
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if(firstNameInput.getEditText().getText().toString().isEmpty()</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">            || lastNameInput.getEditText().getText().toString().isEmpty()</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">            || weightInput.getEditText().getText().toString().isEmpty()) {</span>
+<span class="nc" id="L205">                warningText.setText(&quot;Some fields are blank!&quot;);</span>
+<span class="nc" id="L206">                warningText.setAlpha(1);</span>
+<span class="nc" id="L207">                return;</span>
+        }
+
+<span class="fc" id="L210">        int weightValue = Integer.parseInt(weightInput.getEditText().getText().toString());</span>
+<span class="fc" id="L211">        int playerAge = Calendar.getInstance().get(Calendar.YEAR) - date.getYear();</span>
+
+        //if weight is not in range
+<span class="pc bpc" id="L214" title="2 of 4 branches missed.">        if(weightValue &lt; 10 || weightValue &gt; 1499) {</span>
+<span class="nc" id="L215">            warningText.setText(&quot;Weight must be between 10 lb and 1500 lb!&quot;);</span>
+<span class="nc" id="L216">            warningText.setAlpha(1);</span>
+<span class="nc" id="L217">            return;</span>
+        }
+
+        //if no height is selected
+<span class="pc bpc" id="L221" title="2 of 4 branches missed.">        if(heightFeetSpinner.getSelectedItem().toString().equals(&quot;Ft.&quot;) || heightInchesSpinner.getSelectedItem().toString().equals(&quot;In.&quot;)) {</span>
+<span class="nc" id="L222">            warningText.setText(&quot;Select a height!&quot;);</span>
+<span class="nc" id="L223">            warningText.setAlpha(1);</span>
+<span class="nc" id="L224">            return;</span>
+        }
+
+<span class="fc" id="L227">        int feet = Integer.parseInt(heightFeetSpinner.getSelectedItem().toString().replaceAll(&quot;[\\D]&quot;, &quot;&quot;));</span>
+<span class="fc" id="L228">        int inches = Integer.parseInt(heightInchesSpinner.getSelectedItem().toString().replaceAll(&quot;[\\D]&quot;, &quot;&quot;));</span>
+<span class="fc" id="L229">        int totalInches = (feet * 12) + inches;</span>
+
+        //if no preferred position is selected
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">        if(posSpinner.getSelectedItem().toString().equals(&quot;Select a position...&quot;)) {</span>
+<span class="nc" id="L233">            warningText.setText(&quot;Select a preferred position!&quot;);</span>
+<span class="nc" id="L234">            warningText.setAlpha(1);</span>
+<span class="nc" id="L235">            return;</span>
+        }
+
+        //check player age
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">        if(playerAge &lt; 12) {</span>
+<span class="nc" id="L240">            warningText.setText(&quot;Must be 12 years old or older!&quot;);</span>
+<span class="nc" id="L241">            warningText.setAlpha(1);</span>
+<span class="nc" id="L242">            return;</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">        } else if(playerAge &gt; 110) {</span>
+<span class="nc" id="L244">            warningText.setText(&quot;Must be 110 years old or younger!&quot;);</span>
+<span class="nc" id="L245">            warningText.setAlpha(1);</span>
+<span class="nc" id="L246">            return;</span>
+        }
+
+<span class="fc" id="L249">        RequestQueue queue = Volley.newRequestQueue(ProfileEditActivity.this);</span>
+<span class="fc" id="L250">        JSONObject body = new JSONObject();</span>
+        try {
+<span class="fc" id="L252">            body.put(&quot;player_id&quot;, playerID);</span>
+<span class="fc" id="L253">            body.put(&quot;profile_pic&quot;, bitmapString);</span>
+<span class="fc" id="L254">            body.put(&quot;first_name&quot;, firstNameInput.getEditText().getText().toString());</span>
+<span class="fc" id="L255">            body.put(&quot;last_name&quot;, lastNameInput.getEditText().getText().toString());</span>
+<span class="fc" id="L256">            body.put(&quot;height&quot;, totalInches);</span>
+<span class="fc" id="L257">            body.put(&quot;weight&quot;, weightValue);</span>
+<span class="fc" id="L258">            body.put(&quot;preferred_position&quot;, posSpinner.getSelectedItem().toString());</span>
+<span class="fc" id="L259">            body.put(&quot;birthday&quot;, date.toString());</span>
+<span class="fc" id="L260">            body.put(&quot;has_profile&quot;, true);</span>
+<span class="nc" id="L261">        } catch (Exception e) {</span>
+<span class="nc" id="L262">            e.printStackTrace();</span>
+<span class="fc" id="L263">        }</span>
+
+        JsonObjectRequest request;
+        //create profile if user is new, otherwise update their profile
+        /*if(isNewUser) {
+            request = new JsonObjectRequest(Request.Method.POST, BASE_SERVER_URL + &quot;/players/createProfile&quot;, body,
+
+                    new Response.Listener&lt;JSONObject&gt;() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.i(&quot;good response&quot;, response.toString());
+                            Intent intent = new Intent(ProfileEditActivity.this, ProfileViewActivity.class);
+                            startActivity(intent);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.i(&quot;bad response&quot;, String.valueOf(error.networkResponse.statusCode));
+                        }
+                    }
+            );
+        } else {*/
+<span class="fc" id="L286">            progressBg.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L287">            progressBar.setVisibility(View.VISIBLE);</span>
+<span class="fc" id="L288">            request = new JsonObjectRequest(Request.Method.PUT, BASE_SERVER_URL + &quot;/players/updateProfile&quot;, body,</span>
+
+<span class="fc" id="L290">                    new Response.Listener&lt;JSONObject&gt;() {</span>
+                        @Override
+                        public void onResponse(JSONObject response) {
+<span class="fc" id="L293">                            Log.i(&quot;good response&quot;, response.toString());</span>
+<span class="fc" id="L294">                            Intent intent = new Intent(ProfileEditActivity.this, ProfileViewActivity.class);</span>
+<span class="fc" id="L295">                            progressBg.setVisibility(View.INVISIBLE);</span>
+<span class="fc" id="L296">                            progressBar.setVisibility(View.INVISIBLE);</span>
+<span class="fc" id="L297">                            startActivity(intent);</span>
+<span class="fc" id="L298">                        }</span>
+                    },
+<span class="fc" id="L300">                    new Response.ErrorListener() {</span>
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L303">                            Log.i(&quot;bad response&quot;, error.toString());</span>
+
+<span class="nc" id="L305">                        }</span>
+                    }
+            );
+        //}
+<span class="fc" id="L309">        queue.add(request);</span>
+<span class="fc" id="L310">    }</span>
+
+    /**
+     * Sends a GET request fetching information about user. Calls updateFields() on a
+     * successful response.
+     */
+    private void updateInformation() {
+<span class="fc" id="L317">        RequestQueue queue = Volley.newRequestQueue(ProfileEditActivity.this);</span>
+        JsonObjectRequest request;
+<span class="fc" id="L319">        request = new JsonObjectRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/getProfile/&quot; + playerID, null,</span>
+
+<span class="fc" id="L321">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+<span class="fc" id="L325">                            updateFields(response);</span>
+<span class="nc" id="L326">                        } catch (JSONException e) {</span>
+<span class="nc" id="L327">                            throw new RuntimeException(e);</span>
+<span class="fc" id="L328">                        }</span>
+<span class="fc" id="L329">                    }</span>
+                },
+
+<span class="fc" id="L332">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L336">                    }</span>
+                }
+        );
+<span class="fc" id="L339">        queue.add(request);</span>
+<span class="fc" id="L340">    }</span>
+
+    /**
+     * Updates the fields based on JSONObject provided by updateInformation()
+     * @param object JSONObject given by updateInformation()
+     * @throws JSONException
+     */
+    private void updateFields(JSONObject object) throws JSONException {
+
+<span class="fc" id="L349">        Bitmap imageBitmap = stringToBitMap(object.getString(&quot;profile_pic&quot;));</span>
+
+        //if bitmap is null, set a default profile picture
+<span class="pc bpc" id="L352" title="1 of 2 branches missed.">        if(imageBitmap == null) {</span>
+<span class="fc" id="L353">            profileImage.setImageResource(R.drawable.blank_profile);</span>
+        } else {
+<span class="nc" id="L355">            profileImage.setImageBitmap(imageBitmap);</span>
+<span class="nc" id="L356">            bitmapString = bitmapToString(imageBitmap);</span>
+        }
+
+<span class="fc" id="L359">        firstNameInput.getEditText().setText(object.getString(&quot;first_name&quot;));</span>
+<span class="fc" id="L360">        lastNameInput.getEditText().setText(object.getString(&quot;last_name&quot;));</span>
+<span class="fc" id="L361">        heightFeetSpinner.setSelection((object.getInt(&quot;height&quot;) / 12) + 1);</span>
+<span class="fc" id="L362">        heightInchesSpinner.setSelection((object.getInt(&quot;height&quot;) % 12) + 1);</span>
+<span class="fc" id="L363">        weightInput.getEditText().setText(String.valueOf(object.getInt(&quot;weight&quot;)));</span>
+<span class="fc" id="L364">        LocalDate date1 = LocalDate.parse(object.getString(&quot;birthday&quot;));</span>
+<span class="fc" id="L365">        yearToPick = date1.getYear();</span>
+<span class="fc" id="L366">        monthToPick = date1.getMonthValue() - 1;</span>
+<span class="fc" id="L367">        dayToPick = date1.getDayOfMonth();</span>
+<span class="fc" id="L368">        dateButton.setText(date1.getMonthValue() + &quot;/&quot; + date1.getDayOfMonth() + &quot;/&quot; + date1.getYear());</span>
+<span class="fc" id="L369">        date = date1;</span>
+
+<span class="pc bpc" id="L371" title="4 of 5 branches missed.">        switch (object.getString(&quot;preferred_position&quot;)) {</span>
+            case &quot;Attacker&quot;:
+<span class="nc" id="L373">                posSpinner.setSelection(1);</span>
+<span class="nc" id="L374">                break;</span>
+            case &quot;Midfielder&quot;:
+<span class="fc" id="L376">                posSpinner.setSelection(2);</span>
+<span class="fc" id="L377">                break;</span>
+            case &quot;Defender&quot;:
+<span class="nc" id="L379">                posSpinner.setSelection(3);</span>
+<span class="nc" id="L380">                break;</span>
+            case &quot;Goalkeeper&quot;:
+<span class="nc" id="L382">                posSpinner.setSelection(4);</span>
+                break;
+        }
+
+<span class="fc" id="L386">        progressBg.setVisibility(View.INVISIBLE);</span>
+<span class="fc" id="L387">        progressBar.setVisibility(View.INVISIBLE);</span>
+
+<span class="fc" id="L389">    }</span>
+
+
+    /**
+     * Dialog that pops up when user clicks on the birthday button.
+     * @param year initial year value
+     * @param month initial month value
+     * @param day initial day of month value
+     */
+    public void openDialog(int year, int month, int day) {
+<span class="nc" id="L399">        DatePickerDialog dialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {</span>
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+<span class="nc" id="L402">                month++;</span>
+<span class="nc bnc" id="L403" title="All 2 branches missed.">                if(month &lt; 10) {</span>
+<span class="nc bnc" id="L404" title="All 2 branches missed.">                    if(dayOfMonth &gt; 9) {</span>
+<span class="nc" id="L405">                        date = LocalDate.parse(year + &quot;-&quot; + &quot;0&quot; + month + &quot;-&quot; + dayOfMonth);</span>
+                    } else {
+<span class="nc" id="L407">                        date = LocalDate.parse(year + &quot;-&quot; + &quot;0&quot; + month + &quot;-&quot; + &quot;0&quot; + dayOfMonth);</span>
+                    }
+                } else {
+<span class="nc bnc" id="L410" title="All 2 branches missed.">                    if(dayOfMonth &gt; 9) {</span>
+<span class="nc" id="L411">                        date = LocalDate.parse(year + &quot;-&quot; + month + &quot;-&quot; + dayOfMonth);</span>
+                    } else {
+<span class="nc" id="L413">                        date = LocalDate.parse(year + &quot;-&quot; + month + &quot;-&quot; + &quot;0&quot; + dayOfMonth);</span>
+                    }
+                }
+<span class="nc" id="L416">                dateButton.setText(month + &quot;/&quot; + dayOfMonth + &quot;/&quot; + year);</span>
+<span class="nc" id="L417">            }</span>
+        }, year, month, day);
+<span class="nc" id="L419">        dialog.show();</span>
+<span class="nc" id="L420">    }</span>
+
+    /**
+     * Called when a dropdown item is selected.
+     * @param parent The AdapterView where the selection happened
+     * @param view The view within the AdapterView that was clicked
+     * @param position The position of the view in the adapter
+     * @param id The row id of the item that is selected
+     */
+    @Override
+    public void onItemSelected(AdapterView&lt;?&gt; parent, View view, int position, long id) {
+<span class="fc" id="L431">        String selectedItem = parent.getItemAtPosition(position).toString();</span>
+<span class="fc" id="L432">        Toast.makeText(this, selectedItem, Toast.LENGTH_SHORT).show();</span>
+
+<span class="fc" id="L434">    }</span>
+
+    /**
+     * Called when nothing is selected on a dropdown item.
+     * @param parent The AdapterView that now contains no selected item.
+     */
+    @Override
+    public void onNothingSelected(AdapterView&lt;?&gt; parent) {
+<span class="nc" id="L442">        Toast.makeText(this, &quot;Select...&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L443">    }</span>
+
+    /**
+     * Converts a given bitmap to a String, which can be sent to the backend.
+     * @param bitmap
+     * @return
+     */
+    private String bitmapToString(Bitmap bitmap) {
+<span class="nc" id="L451">        ByteArrayOutputStream baos = new  ByteArrayOutputStream();</span>
+<span class="nc" id="L452">        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);</span>
+<span class="nc" id="L453">        byte [] b=baos.toByteArray();</span>
+<span class="nc" id="L454">        String s = Base64.encodeToString(b, Base64.DEFAULT);</span>
+<span class="nc" id="L455">        return s;</span>
+    }
+
+    /**
+     * Converts a given String to a bitmap which can be used to set ImageView's bitmap.
+     * @param encodedString
+     * @return
+     */
+    public Bitmap stringToBitMap(String encodedString){
+        try {
+<span class="fc" id="L465">            byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);</span>
+<span class="fc" id="L466">            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);</span>
+<span class="fc" id="L467">            return bitmap;</span>
+<span class="nc" id="L468">        } catch(Exception e) {</span>
+<span class="nc" id="L469">            e.getMessage();</span>
+<span class="nc" id="L470">            return null;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

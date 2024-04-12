@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PickupMatchViewActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">PickupMatchViewActivity.java</span></div><h1>PickupMatchViewActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.playerID;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.se309.soccernexus.util.recyclerviews.Player;
+import com.se309.soccernexus.util.recyclerviews.PlayerListAdapter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
+<span class="fc" id="L34">public class PickupMatchViewActivity extends AppCompatActivity {</span>
+
+    TextView vsTitleText, locationTxt, timeText, matchFormatTxt, team1Txt, team2Txt, matchScoreTxt, matchCompletedTxt;
+    ImageButton backBtn;
+    Button formBtn;
+    RecyclerView rosterRecycler1, rosterRecycler2;
+<span class="fc" id="L40">    private ArrayList&lt;Player&gt; playerList1 = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L41">    private ArrayList&lt;Player&gt; playerList2 = new ArrayList&lt;&gt;();</span>
+    long matchID;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L46">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L47">        setContentView(R.layout.pickup_match_view_activity);</span>
+
+<span class="fc" id="L49">        vsTitleText = findViewById(R.id.pickupview_vsText);</span>
+<span class="fc" id="L50">        locationTxt = findViewById(R.id.pickupview_locationTxt);</span>
+<span class="fc" id="L51">        timeText = findViewById(R.id.pickupview_timeTxt);</span>
+<span class="fc" id="L52">        matchFormatTxt = findViewById(R.id.pickupview_formatTxt);</span>
+<span class="fc" id="L53">        team1Txt = findViewById(R.id.pickupview_team1RosterTxt);</span>
+<span class="fc" id="L54">        team2Txt = findViewById(R.id.pickupview_team2RosterTxt);</span>
+<span class="fc" id="L55">        backBtn = findViewById(R.id.pickupview_backBtn);</span>
+<span class="fc" id="L56">        matchScoreTxt = findViewById(R.id.pickupview_matchScoreTxt);</span>
+<span class="fc" id="L57">        formBtn = findViewById(R.id.pickupview_formBtn);</span>
+<span class="fc" id="L58">        matchCompletedTxt = findViewById(R.id.pickupview_matchCompletedTxt);</span>
+
+<span class="fc" id="L60">        rosterRecycler1 = findViewById(R.id.pickupview_rosterRecycler1);</span>
+<span class="fc" id="L61">        rosterRecycler2 = findViewById(R.id.pickupview_rosterRecycler2);</span>
+
+<span class="fc" id="L63">        Bundle extras = getIntent().getExtras();</span>
+<span class="fc" id="L64">        Log.i(&quot;intent started activity&quot;, getIntent().toString());</span>
+<span class="fc" id="L65">        matchID = extras.getLong(&quot;matchid&quot;);</span>
+
+<span class="fc" id="L67">        getMatchDetails();</span>
+
+<span class="fc" id="L69">        backBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L72">                finish();</span>
+<span class="fc" id="L73">            }</span>
+        });
+
+<span class="fc" id="L76">        formBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                if(formBtn.getText().equals(&quot;Complete Match&quot;)) {</span>
+                    try {
+<span class="nc" id="L81">                        completeMatch();</span>
+<span class="nc" id="L82">                    } catch (JSONException e) {</span>
+<span class="nc" id="L83">                        throw new RuntimeException(e);</span>
+<span class="nc" id="L84">                    }</span>
+                } else {
+
+                }
+<span class="nc" id="L88">            }</span>
+        });
+
+<span class="fc" id="L91">    }</span>
+
+    private void getMatchDetails() {
+<span class="fc" id="L94">        RequestQueue queue = Volley.newRequestQueue(PickupMatchViewActivity.this);</span>
+<span class="fc" id="L95">        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/matches/getMatchInfo/&quot; + matchID, null,</span>
+
+<span class="fc" id="L97">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+<span class="fc" id="L100">                        Log.i(&quot;match info response&quot;, response.toString());</span>
+                        try {
+
+<span class="fc" id="L103">                            int goals1 = response.getInt(&quot;challenging_team_goals&quot;);</span>
+<span class="fc" id="L104">                            int goals2 = response.getInt(&quot;accepting_team_goals&quot;);</span>
+<span class="fc" id="L105">                            matchScoreTxt.setText(goals1 + &quot; - &quot; + goals2);</span>
+
+<span class="fc" id="L107">                            locationTxt.setText(response.getString(&quot;location&quot;));</span>
+<span class="fc" id="L108">                            matchFormatTxt.setText(&quot;Match Format: &quot; + response.getString(&quot;format&quot;));</span>
+<span class="fc" id="L109">                            LocalDateTime matchDate = LocalDateTime.parse(response.getString(&quot;match_time&quot;));</span>
+
+                            int regularHour;
+                            String period;
+<span class="fc" id="L113">                            int militaryHour = matchDate.getHour();</span>
+
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">                            if (militaryHour == 0) {</span>
+<span class="nc" id="L116">                                regularHour = 12;</span>
+<span class="nc" id="L117">                                period = &quot;AM&quot;;</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">                            } else if (militaryHour == 12) {</span>
+<span class="nc" id="L119">                                regularHour = 12;</span>
+<span class="nc" id="L120">                                period = &quot;PM&quot;;</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">                            } else if (militaryHour &lt; 12) {</span>
+<span class="nc" id="L122">                                regularHour = militaryHour;</span>
+<span class="nc" id="L123">                                period = &quot;AM&quot;;</span>
+                            } else {
+<span class="fc" id="L125">                                regularHour = militaryHour - 12;</span>
+<span class="fc" id="L126">                                period = &quot;PM&quot;;</span>
+                            }
+
+                            String min;
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">                            if(matchDate.getMinute() &lt; 10) {</span>
+<span class="fc" id="L131">                                min = &quot;0&quot; + matchDate.getMinute();</span>
+                            }  else {
+<span class="nc" id="L133">                                min = String.valueOf(matchDate.getMinute());</span>
+                            }
+
+<span class="fc" id="L136">                            String matchDayOfWeek = matchDate.getDayOfWeek().toString().toLowerCase();</span>
+<span class="fc" id="L137">                            matchDayOfWeek = matchDayOfWeek.substring(0, 1).toUpperCase() + matchDayOfWeek.substring(1);</span>
+<span class="fc" id="L138">                            String matchMonth = matchDate.getMonth().toString().toLowerCase();</span>
+<span class="fc" id="L139">                            matchMonth =  matchMonth.substring(0, 1).toUpperCase() + matchMonth.substring(1);</span>
+
+<span class="fc" id="L141">                            timeText.setText(matchDayOfWeek + &quot;, &quot; + matchMonth + &quot; &quot; + matchDate.getDayOfMonth()</span>
+                            + &quot;, &quot; + regularHour + &quot;:&quot; + min + &quot; &quot; + period);
+
+<span class="fc" id="L144">                            JSONObject challengingTeam = response.getJSONObject(&quot;challenging_team&quot;);</span>
+<span class="fc" id="L145">                            JSONObject acceptingTeam = response.getJSONObject(&quot;accepting_team&quot;);</span>
+<span class="fc" id="L146">                            String challengingTeamName = challengingTeam.getString(&quot;team_name&quot;);</span>
+<span class="fc" id="L147">                            String acceptingTeamName = acceptingTeam.getString(&quot;team_name&quot;);</span>
+
+<span class="fc" id="L149">                            vsTitleText.setText(challengingTeamName + &quot; vs &quot; + acceptingTeamName);</span>
+<span class="fc" id="L150">                            team1Txt.setText(challengingTeamName);</span>
+<span class="fc" id="L151">                            team2Txt.setText(acceptingTeamName);</span>
+
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">                            if(challengingTeam.getJSONObject(&quot;captain&quot;).getLong(&quot;player_id&quot;) != playerID &amp;&amp;</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">                            acceptingTeam.getJSONObject(&quot;captain&quot;).getLong(&quot;player_id&quot;) != playerID) {</span>
+<span class="nc" id="L155">                                formBtn.setEnabled(false);</span>
+                            }
+
+<span class="fc" id="L158">                            String captainName1 = challengingTeam.getJSONObject(&quot;captain&quot;).getString(&quot;player_name&quot;);</span>
+<span class="fc" id="L159">                            String captainPos1 = challengingTeam.getJSONObject(&quot;captain&quot;).getString(&quot;player_position&quot;);</span>
+<span class="fc" id="L160">                            playerList1.add(new Player(captainName1, captainPos1, true));</span>
+
+<span class="fc" id="L162">                            String captainName2 = acceptingTeam.getJSONObject(&quot;captain&quot;).getString(&quot;player_name&quot;);</span>
+<span class="fc" id="L163">                            String captainPos2 = acceptingTeam.getJSONObject(&quot;captain&quot;).getString(&quot;player_position&quot;);</span>
+<span class="fc" id="L164">                            playerList2.add(new Player(captainName2, captainPos2, true));</span>
+
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">                            for(int i = 1; i &lt; challengingTeam.getJSONArray(&quot;players&quot;).length(); i++) {</span>
+<span class="nc" id="L167">                                String playerName1 = challengingTeam.getJSONArray(&quot;players&quot;).getJSONObject(i).getString(&quot;player_name&quot;);</span>
+<span class="nc" id="L168">                                String playerPos1 = challengingTeam.getJSONArray(&quot;players&quot;).getJSONObject(i).getString(&quot;player_position&quot;);</span>
+<span class="nc" id="L169">                                playerList1.add(new Player(playerName1, playerPos1, false));</span>
+                            }
+
+<span class="fc bfc" id="L172" title="All 2 branches covered.">                            for(int i = 1; i &lt; acceptingTeam.getJSONArray(&quot;players&quot;).length(); i++) {</span>
+<span class="fc" id="L173">                                String playerName2 = acceptingTeam.getJSONArray(&quot;players&quot;).getJSONObject(i).getString(&quot;player_name&quot;);</span>
+<span class="fc" id="L174">                                String playerPos2 = acceptingTeam.getJSONArray(&quot;players&quot;).getJSONObject(i).getString(&quot;player_position&quot;);</span>
+<span class="fc" id="L175">                                playerList2.add(new Player(playerName2, playerPos2, false));</span>
+                            }
+<span class="nc" id="L177">                        } catch (JSONException e) {</span>
+<span class="nc" id="L178">                            throw new RuntimeException(e);</span>
+<span class="fc" id="L179">                        }</span>
+<span class="fc" id="L180">                        updateRoster1Recycler();</span>
+<span class="fc" id="L181">                        updateRoster2Recycler();</span>
+<span class="fc" id="L182">                    }</span>
+                },
+
+<span class="fc" id="L185">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L189">                    }</span>
+                }
+
+        );
+<span class="fc" id="L193">        queue.add(request);</span>
+<span class="fc" id="L194">    }</span>
+
+    private void completeMatch() throws JSONException {
+<span class="nc" id="L197">        JSONObject body = new JSONObject();</span>
+<span class="nc" id="L198">        body.put(&quot;pickup_match_id&quot;, matchID);</span>
+<span class="nc" id="L199">        RequestQueue queue = Volley.newRequestQueue(PickupMatchViewActivity.this);</span>
+<span class="nc" id="L200">        JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, BASE_SERVER_URL + &quot;/matches/finishMatch&quot;, body,</span>
+
+<span class="nc" id="L202">                new Response.Listener&lt;JSONObject&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONObject response) {
+<span class="nc" id="L205">                        Log.i(&quot;complete match response&quot;, response.toString());</span>
+<span class="nc" id="L206">                        formBtn.setText(&quot;Post Match Report&quot;);</span>
+<span class="nc" id="L207">                        matchCompletedTxt.setVisibility(View.VISIBLE);</span>
+<span class="nc" id="L208">                    }</span>
+                },
+
+<span class="nc" id="L211">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L215">                    }</span>
+                }
+
+        );
+<span class="nc" id="L219">        queue.add(request);</span>
+<span class="nc" id="L220">    }</span>
+
+    private void updateRoster1Recycler() {
+<span class="fc" id="L223">        PlayerListAdapter adapter = new PlayerListAdapter(playerList1);</span>
+<span class="fc" id="L224">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L225">        rosterRecycler1.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L226">        rosterRecycler1.setNestedScrollingEnabled(false);</span>
+<span class="fc" id="L227">        rosterRecycler1.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L228">        rosterRecycler1.setAdapter(adapter);</span>
+<span class="fc" id="L229">    }</span>
+
+    private void updateRoster2Recycler() {
+<span class="fc" id="L232">        PlayerListAdapter adapter = new PlayerListAdapter(playerList2);</span>
+<span class="fc" id="L233">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L234">        rosterRecycler2.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L235">        rosterRecycler2.setNestedScrollingEnabled(false);</span>
+<span class="fc" id="L236">        rosterRecycler2.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L237">        rosterRecycler2.setAdapter(adapter);</span>
+<span class="fc" id="L238">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

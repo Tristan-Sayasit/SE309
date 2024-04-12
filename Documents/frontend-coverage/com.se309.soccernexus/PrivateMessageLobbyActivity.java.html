@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrivateMessageLobbyActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus</a> &gt; <span class="el_source">PrivateMessageLobbyActivity.java</span></div><h1>PrivateMessageLobbyActivity.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus;
+
+import static com.se309.soccernexus.util.Const.BASE_SERVER_URL;
+import static com.se309.soccernexus.util.Const.playerID;
+
+import android.animation.ObjectAnimator;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.se309.soccernexus.util.recyclerviews.User;
+import com.se309.soccernexus.util.recyclerviews.UserAdapter;
+import com.se309.soccernexus.util.recyclerviews.UserChatLobby;
+import com.se309.soccernexus.util.recyclerviews.UserChatLobbyAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
+/**
+ * @author Nathan Turnis
+ * Class for displaying and handling logic in the Chat Lobby Page
+ */
+<span class="fc" id="L44">public class PrivateMessageLobbyActivity extends AppCompatActivity {</span>
+
+    ImageButton backToHomeBtn, addFriendsBtn, removeFriendsBtn;
+    Button cancelBtn, friendRequestsBtn;
+    RecyclerView recyclerView, friendsRecyclerView;
+    ConstraintLayout addFriendsLayout;
+
+    private ArrayList&lt;UserChatLobby&gt; userChatLobbyList;
+<span class="fc" id="L52">    private ArrayList&lt;User&gt; usersList = new ArrayList&lt;&gt;();</span>
+
+    public UserChatLobbyAdapter adapter;
+
+    /**
+     * Called when the activity is created. Initializes a listener on the required buttons.
+     * Creates a recycler view then fills that recycler view by requesting the lobby list (friends list).
+     * If the user clicks the add friend button, it will show a list of users they can add.
+     * If the user click the remove friend button, the user can choose to remove each friend
+     * individually.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  &lt;b&gt;&lt;i&gt;Note: Otherwise it is null.&lt;/i&gt;&lt;/b&gt;
+     *
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L69">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L70">        setContentView(R.layout.private_message_lobby_activity);</span>
+
+<span class="fc" id="L72">        backToHomeBtn = findViewById(R.id.message_lobby_backBtn);</span>
+<span class="fc" id="L73">        addFriendsBtn = findViewById(R.id.message_lobby_addFriendsBtn);</span>
+<span class="fc" id="L74">        removeFriendsBtn = findViewById(R.id.lobby_removeBtn);</span>
+<span class="fc" id="L75">        cancelBtn = findViewById(R.id.add_friend_cancel);</span>
+<span class="fc" id="L76">        friendRequestsBtn = findViewById(R.id.lobby_friendRequestsBtn);</span>
+<span class="fc" id="L77">        recyclerView = findViewById(R.id.message_lobby_recyclerView);</span>
+<span class="fc" id="L78">        addFriendsLayout = findViewById(R.id.add_friend_layout);</span>
+<span class="fc" id="L79">        friendsRecyclerView = findViewById(R.id.add_friend_recyclerView);</span>
+
+<span class="fc" id="L81">        userChatLobbyList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L83">        DividerItemDecoration itemDecorator = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);</span>
+<span class="fc" id="L84">        itemDecorator.setDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.recyclerview_divider));</span>
+
+<span class="fc" id="L86">        recyclerView.addItemDecoration(itemDecorator);</span>
+
+<span class="fc" id="L88">        requestLobbyList();</span>
+
+<span class="fc" id="L90">        removeFriendsBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">                if(removeFriendsBtn.getBackgroundTintList() == ColorStateList.valueOf(0xFF0027ED)) {</span>
+<span class="fc" id="L94">                    removeFriendsBtn.setBackgroundTintList(ColorStateList.valueOf(0xFF6200ED));</span>
+                } else {
+<span class="fc" id="L96">                    removeFriendsBtn.setBackgroundTintList(ColorStateList.valueOf(0xFF0027ED));</span>
+                }
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                for(UserChatLobby user : userChatLobbyList) {</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">                    if(user.isCanRemove()){</span>
+<span class="fc" id="L100">                        user.setCanRemove(false);</span>
+                    } else {
+<span class="fc" id="L102">                        user.setCanRemove(true);</span>
+                    }
+<span class="fc" id="L104">                }</span>
+<span class="fc" id="L105">                updateRecyclerView();</span>
+<span class="fc" id="L106">            }</span>
+        });
+
+<span class="fc" id="L109">        backToHomeBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L112">                Intent intent = new Intent(PrivateMessageLobbyActivity.this, HomeActivity.class);</span>
+<span class="fc" id="L113">                startActivity(intent);</span>
+<span class="fc" id="L114">            }</span>
+        });
+
+<span class="fc" id="L117">        addFriendsBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+
+<span class="fc" id="L121">                usersList.clear();</span>
+
+<span class="fc" id="L123">                RequestQueue queue = Volley.newRequestQueue(PrivateMessageLobbyActivity.this);</span>
+<span class="fc" id="L124">                JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/players/getAllPlayers&quot;, null,</span>
+
+<span class="fc" id="L126">                        new Response.Listener&lt;JSONArray&gt;() {</span>
+                            @Override
+                            public void onResponse(JSONArray response) {
+<span class="fc" id="L129">                                Log.i(&quot;all users response&quot;, response.toString());</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">                                for(int i = 0; i &lt; response.length(); i++) {</span>
+                                    try {
+<span class="fc" id="L132">                                        long id = response.getJSONObject(i).getLong(&quot;player_id&quot;);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">                                        if(id == playerID) {</span>
+<span class="fc" id="L134">                                            continue;</span>
+                                        }
+<span class="fc" id="L136">                                        String firstName = response.getJSONObject(i).getString(&quot;first_name&quot;);</span>
+<span class="fc" id="L137">                                        String lastName = response.getJSONObject(i).getString(&quot;last_name&quot;);</span>
+<span class="fc" id="L138">                                        String username = response.getJSONObject(i).getString(&quot;username&quot;);</span>
+<span class="fc" id="L139">                                        usersList.add(new User(firstName, lastName, username, id, 0, 0));</span>
+<span class="nc" id="L140">                                    } catch (Exception e) {</span>
+
+<span class="fc" id="L142">                                    }</span>
+                                }
+
+<span class="fc" id="L145">                                updateFriendsRecyclerView();</span>
+                                //915
+<span class="fc" id="L147">                                ObjectAnimator animation = ObjectAnimator.ofFloat(addFriendsLayout, &quot;translationY&quot;, -2330);</span>
+<span class="fc" id="L148">                                animation.setDuration(190);</span>
+<span class="fc" id="L149">                                animation.start();</span>
+<span class="fc" id="L150">                            }</span>
+                        },
+
+<span class="fc" id="L153">                        new Response.ErrorListener() {</span>
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+<span class="nc" id="L156">                                Log.i(&quot;friends error&quot;, error.toString());</span>
+<span class="nc" id="L157">                                error.printStackTrace();</span>
+<span class="nc" id="L158">                            }</span>
+                        }
+                );
+
+<span class="fc" id="L162">                queue.add(request);</span>
+<span class="fc" id="L163">            }</span>
+        });
+
+<span class="fc" id="L166">        cancelBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L169">                requestLobbyList();</span>
+<span class="fc" id="L170">                ObjectAnimator animation = ObjectAnimator.ofFloat(addFriendsLayout, &quot;translationY&quot;, 2330);</span>
+<span class="fc" id="L171">                animation.setDuration(190);</span>
+<span class="fc" id="L172">                animation.start();</span>
+<span class="fc" id="L173">            }</span>
+        });
+
+<span class="fc" id="L176">        friendRequestsBtn.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="fc" id="L179">                Intent intent = new Intent(PrivateMessageLobbyActivity.this, FriendRequestsActivity.class);</span>
+<span class="fc" id="L180">                startActivity(intent);</span>
+<span class="fc" id="L181">            }</span>
+        });
+<span class="fc" id="L183">    }</span>
+
+    /**
+     * Updates the friends/chat list recycler view
+     */
+    public void updateRecyclerView() {
+<span class="fc" id="L189">        adapter = new UserChatLobbyAdapter(userChatLobbyList, PrivateMessageLobbyActivity.this);</span>
+<span class="fc" id="L190">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L191">        recyclerView.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L192">        recyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L193">        recyclerView.setAdapter(adapter);</span>
+<span class="fc" id="L194">    }</span>
+
+    public void test() {
+
+<span class="nc" id="L198">    }</span>
+
+    /**
+     * Updates the recycler view for 'Add Friends'
+     */
+    public void updateFriendsRecyclerView() {
+<span class="fc bfc" id="L204" title="All 4 branches covered.">        ArrayList&lt;User&gt; usersList2 = new ArrayList&lt;&gt;(usersList.stream().filter(x -&gt; !userChatLobbyList.stream().anyMatch(y -&gt; y.getId() == x.getID())).collect(Collectors.toList()));</span>
+<span class="fc" id="L205">        usersList.clear();</span>
+<span class="fc" id="L206">        usersList.addAll(usersList2);</span>
+<span class="fc" id="L207">        UserAdapter adapter2 = new UserAdapter(usersList, PrivateMessageLobbyActivity.this);</span>
+<span class="fc" id="L208">        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());</span>
+<span class="fc" id="L209">        friendsRecyclerView.setLayoutManager(layoutManager);</span>
+<span class="fc" id="L210">        friendsRecyclerView.setItemAnimator(new DefaultItemAnimator());</span>
+<span class="fc" id="L211">        friendsRecyclerView.setAdapter(adapter2);</span>
+<span class="fc" id="L212">    }</span>
+
+    /**
+     * Requests all the friends for the logged-in user.
+     */
+    public void requestLobbyList() {
+<span class="fc" id="L218">        userChatLobbyList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L219">        RequestQueue queue = Volley.newRequestQueue(PrivateMessageLobbyActivity.this);</span>
+<span class="fc" id="L220">        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, BASE_SERVER_URL + &quot;/friends/getFriendsList/&quot; + playerID, null,</span>
+
+<span class="fc" id="L222">                new Response.Listener&lt;JSONArray&gt;() {</span>
+                    @Override
+                    public void onResponse(JSONArray response) {
+<span class="fc bfc" id="L225" title="All 2 branches covered.">                        for(int i = 0; i &lt; response.length(); i++) {</span>
+                            try {
+<span class="fc" id="L227">                                Log.i(&quot;Friends list response&quot;, response.toString());</span>
+<span class="fc" id="L228">                                String firstName = response.getJSONObject(i).getString(&quot;first_name&quot;);</span>
+<span class="fc" id="L229">                                String lastName = response.getJSONObject(i).getString(&quot;last_name&quot;);</span>
+<span class="fc" id="L230">                                long id = response.getJSONObject(i).getLong(&quot;player_id&quot;);</span>
+<span class="fc" id="L231">                                String username = response.getJSONObject(i).getString(&quot;username&quot;);</span>
+<span class="fc" id="L232">                                userChatLobbyList.add(new UserChatLobby(firstName + &quot; &quot; + lastName, &quot;&quot;, id, username));</span>
+<span class="nc" id="L233">                            } catch (JSONException e) {</span>
+<span class="nc" id="L234">                                e.printStackTrace();</span>
+<span class="fc" id="L235">                            }</span>
+                        }
+<span class="fc" id="L237">                        updateRecyclerView();</span>
+<span class="fc" id="L238">                    }</span>
+                },
+
+<span class="fc" id="L241">                new Response.ErrorListener() {</span>
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+<span class="nc" id="L245">                    }</span>
+                }
+
+        );
+<span class="fc" id="L249">        queue.add(request);</span>
+
+<span class="fc" id="L251">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

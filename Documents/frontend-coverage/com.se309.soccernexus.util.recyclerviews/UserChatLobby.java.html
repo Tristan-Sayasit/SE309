@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserChatLobby.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.se309.soccernexus.util.recyclerviews</a> &gt; <span class="el_source">UserChatLobby.java</span></div><h1>UserChatLobby.java</h1><pre class="source lang-java linenums">package com.se309.soccernexus.util.recyclerviews;
+
+import android.graphics.Bitmap;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+
+/**
+ * @author Nathan Turnis
+ * Class for storing the UserChatLobby
+ */
+public class UserChatLobby {
+
+    private long id;
+
+    private String name, username;
+
+    private String latestMessage;
+
+    private ImageView profilePic;
+
+    private ImageButton enterChatBtn, removeBtn;
+
+    private View view;
+
+    //used to determine if this user can be removed from friends list
+<span class="fc" id="L27">    private boolean canRemove = false;</span>
+
+    /**
+     * Create a new user.
+     * @param name name of the user
+     * @param latestMessage user's latest message
+     * @param id id of the user
+     * @param username the user's username
+     */
+<span class="fc" id="L36">    public UserChatLobby(String name, String latestMessage, long id, String username) {</span>
+<span class="fc" id="L37">        this.name = name;</span>
+<span class="fc" id="L38">        this.latestMessage = latestMessage;</span>
+<span class="fc" id="L39">        this.id = id;</span>
+<span class="fc" id="L40">        this.username = username;</span>
+<span class="fc" id="L41">    }</span>
+
+    public String getUsername() {
+<span class="fc" id="L44">        return username;</span>
+    }
+
+    public void setUsername(String username) {
+<span class="nc" id="L48">        this.username = username;</span>
+<span class="nc" id="L49">    }</span>
+
+    public String getName() {
+<span class="fc" id="L52">        return name;</span>
+    }
+
+    public void setName(String name) {
+<span class="nc" id="L56">        this.name = name;</span>
+<span class="nc" id="L57">    }</span>
+
+    public String getLatestMessage() {
+<span class="fc" id="L60">        return latestMessage;</span>
+    }
+
+    public void setLatestMessage(String latestMessage) {
+<span class="nc" id="L64">        this.latestMessage = latestMessage;</span>
+<span class="nc" id="L65">    }</span>
+
+    public ImageView getProfilePic() {
+<span class="nc" id="L68">        return profilePic;</span>
+    }
+
+    public void setProfilePic(ImageView profilePic) {
+<span class="nc" id="L72">        this.profilePic = profilePic;</span>
+<span class="nc" id="L73">    }</span>
+
+    public void setProfilePicBitmap(Bitmap bitmap) {
+<span class="nc" id="L76">        this.profilePic.setImageBitmap(bitmap);</span>
+<span class="nc" id="L77">    }</span>
+
+    public ImageButton getEnterChatBtn() {
+<span class="nc" id="L80">        return enterChatBtn;</span>
+    }
+
+    public ImageButton getRemoveBtn() {
+<span class="nc" id="L84">        return removeBtn;</span>
+    }
+
+    public void setRemoveBtn(ImageButton removeBtn) {
+<span class="nc" id="L88">        this.removeBtn = removeBtn;</span>
+<span class="nc" id="L89">    }</span>
+
+    public void setEnterChatBtn(ImageButton enterChatBtn) {
+<span class="nc" id="L92">        this.enterChatBtn = enterChatBtn;</span>
+<span class="nc" id="L93">    }</span>
+
+    public View getView() {
+<span class="nc" id="L96">        return view;</span>
+    }
+
+    public void setView(View view) {
+<span class="nc" id="L100">        this.view = view;</span>
+<span class="nc" id="L101">    }</span>
+
+    public long getId() {
+<span class="fc" id="L104">        return id;</span>
+    }
+
+    public void setId(long id) {
+<span class="nc" id="L108">        this.id = id;</span>
+<span class="nc" id="L109">    }</span>
+
+    public boolean isCanRemove() {
+<span class="fc" id="L112">        return canRemove;</span>
+    }
+
+    public void setCanRemove(boolean test) {
+<span class="fc" id="L116">        this.canRemove = test;</span>
+<span class="fc" id="L117">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span>Generated by the Android Gradle plugin 8.1.3</div></body></html>

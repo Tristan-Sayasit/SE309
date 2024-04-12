@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout4"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="409dp"
+        android:layout_height="810dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        android:contentDescription="Scrollbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/profile_friendsTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="14dp"
+                android:text="Friends: 0"
+                android:textColor="#252525"
+                android:textSize="20sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/profile_editProfileBtn" />
+
+            <View
+                android:id="@+id/profile_extraSpaceBg"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:background="#FFFFFF"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_contactBg" />
+
+            <ImageButton
+                android:id="@+id/profile_editProfileBtn"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_marginEnd="10dp"
+                android:backgroundTint="#6200ED"
+                android:contentDescription="Edit Profile Button"
+                android:scaleType="fitCenter"
+                android:src="@drawable/edit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_profilePictureView"
+                app:tint="#FFFFFF" />
+
+            <View
+                android:id="@+id/profile_contactBg"
+                android:layout_width="wrap_content"
+                android:layout_height="62dp"
+                android:layout_marginTop="3dp"
+                android:background="#F3F5F7"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_contactTitle" />
+
+            <TextView
+                android:id="@+id/profile_emailText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="bobmiller@gmail.com"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_emailTitle" />
+
+            <TextView
+                android:id="@+id/profile_emailTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Email"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/profile_contactBg" />
+
+            <TextView
+                android:id="@+id/profile_contactTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="15dp"
+                android:text="Contact"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_statisticsBg" />
+
+            <View
+                android:id="@+id/profile_statisticsBg"
+                android:layout_width="wrap_content"
+                android:layout_height="490dp"
+                android:layout_marginTop="3dp"
+                android:background="#F3F5F7"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_statisticsTitle" />
+
+            <TextView
+                android:id="@+id/profile_redCardsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="5"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_redCardsTitle" />
+
+            <TextView
+                android:id="@+id/profile_redCardsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Red Cards"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div9" />
+
+            <View
+                android:id="@+id/profile_div9"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_yellowCardsText" />
+
+            <TextView
+                android:id="@+id/profile_yellowCardsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="5"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_yellowCardsTitle" />
+
+            <TextView
+                android:id="@+id/profile_yellowCardsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Yellow Cards"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div8" />
+
+            <View
+                android:id="@+id/profile_div8"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_assistsGameText" />
+
+            <TextView
+                android:id="@+id/profile_assistsGameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="0.66"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_assistsGameTitle" />
+
+            <TextView
+                android:id="@+id/profile_assistsGameTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Assists Per Game"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div7" />
+
+            <View
+                android:id="@+id/profile_div7"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_goalsGameText" />
+
+            <TextView
+                android:id="@+id/profile_goalsGameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="0.66"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_goalsGameTitle" />
+
+            <TextView
+                android:id="@+id/profile_goalsGameTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Goals Per Game"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div6" />
+
+            <View
+                android:id="@+id/profile_div6"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_gamesPlayedText" />
+
+            <TextView
+                android:id="@+id/profile_gamesPlayedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="150"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_gamesPlayedTitle" />
+
+            <TextView
+                android:id="@+id/profile_gamesPlayedTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Games Played"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div5" />
+
+            <View
+                android:id="@+id/profile_div5"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="5dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_assistsText" />
+
+            <TextView
+                android:id="@+id/profile_assistsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="100"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_assistsTitle" />
+
+            <TextView
+                android:id="@+id/profile_assistsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Assists"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div4" />
+
+            <View
+                android:id="@+id/profile_div4"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_goalsText" />
+
+            <TextView
+                android:id="@+id/profile_goalsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="100"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_goalsTitle" />
+
+            <TextView
+                android:id="@+id/profile_goalsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Goals"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div3" />
+
+            <View
+                android:id="@+id/profile_div3"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_positionText" />
+
+            <TextView
+                android:id="@+id/profile_positionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="Goalkeeper"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_PositionTitle" />
+
+            <TextView
+                android:id="@+id/profile_PositionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Preferred Position"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/profile_statisticsBg" />
+
+            <TextView
+                android:id="@+id/profile_statisticsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="15dp"
+                android:text="Statistics"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_characteristicsBg" />
+
+            <View
+                android:id="@+id/profile_characteristicsBg"
+                android:layout_width="wrap_content"
+                android:layout_height="185dp"
+                android:layout_marginTop="3dp"
+                android:background="#F3F5F7"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_characteristicsTitle" />
+
+            <TextView
+                android:id="@+id/profile_birthdayText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="01/01/2000"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_birthdayTitle" />
+
+            <TextView
+                android:id="@+id/profile_birthdayTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Birthday"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div2" />
+
+            <View
+                android:id="@+id/profile_div2"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_weightText" />
+
+            <TextView
+                android:id="@+id/profile_weightText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="160 lb"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_weightTitle" />
+
+            <TextView
+                android:id="@+id/profile_weightTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Weight"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_div1" />
+
+            <View
+                android:id="@+id/profile_div1"
+                android:layout_width="380dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#C3CFD9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_heightText" />
+
+            <TextView
+                android:id="@+id/profile_heightText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:layout_marginTop="2dp"
+                android:text="5' 11&quot;"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_heightTitle" />
+
+            <TextView
+                android:id="@+id/profile_heightTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:text="Height"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/profile_characteristicsBg" />
+
+            <TextView
+                android:id="@+id/profile_characteristicsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="5dp"
+                android:text="Characteristics"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_editProfileBtn" />
+
+            <TextView
+                android:id="@+id/profile_usernameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="17dp"
+                android:text="\@bobmiller101"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@+id/profile_profilePictureView"
+                app:layout_constraintTop_toBottomOf="@+id/profile_fullnameText" />
+
+            <TextView
+                android:id="@+id/profile_fullnameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="9dp"
+                android:layout_marginTop="25dp"
+                android:maxWidth="240dp"
+                android:maxHeight="80dp"
+                android:text="Bob Miller"
+                android:textColor="#000000"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@+id/profile_profilePictureView"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profile_profilePictureView"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="25dp"
+                android:src="@drawable/blank_profile"
+                app:civ_border_color="#4D4E4E"
+                app:civ_border_width="2dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/profile_mainPosText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="17dp"
+                android:layout_marginTop="3dp"
+                android:text="Position: Goalkeeper"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/profile_profilePictureView"
+                app:layout_constraintTop_toBottomOf="@+id/profile_usernameText" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <View
+        android:id="@+id/profile_navbarBg"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/profile_navbarDivider"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_marginBottom="22dp"
+        android:background="#4D4E4E"
+        app:layout_constraintBottom_toTopOf="@id/profile_homePageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/profile_homePgIconSelector"
+        android:layout_width="45dp"
+        android:layout_height="2dp"
+        android:layout_marginStart="231dp"
+        android:layout_marginBottom="16dp"
+        android:background="#6558F5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/profile_homePageButton"
+        android:layout_width="69dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="22dp"
+        android:background="#00FFFFFF"
+        android:backgroundTint="#00FFFFFF"
+        android:contentDescription="Home Button"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_home" />
+
+    <ImageButton
+        android:id="@+id/profile_teamPageButton"
+        android:layout_width="69dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginBottom="22dp"
+        android:background="#00FFFFFF"
+        android:contentDescription="Team Page Button"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/profile_homePageButton"
+        app:srcCompat="@drawable/ic_teams" />
+
+    <ImageButton
+        android:id="@+id/profile_profilePageButton"
+        android:layout_width="69dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginBottom="22dp"
+        android:background="#00FFFFFF"
+        android:contentDescription="Profile Page Button"
+        android:scaleType="fitCenter"
+        app:tint="#6558F5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/profile_teamPageButton"
+        app:srcCompat="@drawable/ic_profile" />
+
+    <ImageButton
+        android:id="@+id/profile_settingsPageButton"
+        android:layout_width="69dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="22dp"
+        android:backgroundTint="#00FFFFFF"
+        android:contentDescription="Settings Page Button"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/settings"
+        app:tint="#4D4E4E" />
+
+    <View
+        android:id="@+id/profile_progressBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".6"
+        android:background="#4E4C4C"
+        android:elevation="100dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/profile_progressCircle"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="146dp"
+        android:layout_height="122dp"
+        android:elevation="101dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.463" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.se309.soccernexus"},{"l":"com.se309.soccernexus.util"},{"l":"com.se309.soccernexus.util.recyclerviews"},{"l":"com.se309.soccernexus.websockets"}];updateSearchResults();
